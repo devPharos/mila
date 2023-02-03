@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "294373969120",
+    "project_id": "milastudentdashboard",
+    "storage_bucket": "milastudentdashboard.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:294373969120:android:294584834cfb1675cb9485",
+        "android_client_info": {
+          "package_name": "com.mila.studentdashboard"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "294373969120-mgq9ugbmvgftjocs0a7652squ56qnan8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqvGz3yPP5sRXf_Hjg5dLtd_gHcwR9b4U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "294373969120-mgq9ugbmvgftjocs0a7652squ56qnan8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

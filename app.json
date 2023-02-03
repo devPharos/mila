@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "MILA Student",
+    "slug": "studentdashboard",
+    "version": "1.0.7",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "android": {
+      "googleServicesFile": "./google-services.json",
+      "package": "com.mila.studentdashboard"
+    },
+    "ios": {
+      "googleServicesFile": "./GoogleService-Info.plist"
+    },
+    "plugins": [
+      "@react-native-firebase/app",
+      "@react-native-firebase/perf",
+      "@react-native-firebase/crashlytics",
+      "sentry-expo",
+      ["expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to use as a profile image."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#ffffff",
+          "mode": "production"
+        }
+      ]
+    ],
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#efefef"
+    }
+  }
+}
