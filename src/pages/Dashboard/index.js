@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { TouchableWithoutFeedback, Keyboard, ScrollView } from 'react-native';
+import { TouchableWithoutFeedback, Keyboard, ScrollView, Text, TouchableOpacity, Linking } from 'react-native';
 import Header from '../../components/Header';
 import { Page, Container, Main } from './styles';
 import { RegisterContext } from '../../hooks/register';
 import ClassReport from '../../components/ClassReport';
 import Loading from '../../components/Loading';
+import { Entypo } from '@expo/vector-icons';
 import { isAfter, isBefore, parseISO } from 'date-fns';
 import * as Notifications from 'expo-notifications';
 
@@ -57,8 +58,8 @@ async function schedulePushNotification(month = 0, day = 0, hour = 0, minute = 0
 export function Dashboard({ navigation }) {
    // const { student } = useRegister();
    const [initializing, setInitializing] = useState(true);
-   const { periods, periodDate, setGroup, groups } = useContext(RegisterContext);
-
+   const { periods, periodDate, setGroup, groups, params } = useContext(RegisterContext);
+   const [totalAbsenses, setTotalAbsenses] = useState(0)
 
    useEffect(() => {
       if(periodDate) {
@@ -102,6 +103,7 @@ export function Dashboard({ navigation }) {
          retGroups.map(group => {
             return group.periodAbsences = periodAbsences;
          })
+         setTotalAbsenses(periodAbsences);
          setGroup(retGroups);
          setInitializing(false);
       }
@@ -116,6 +118,27 @@ export function Dashboard({ navigation }) {
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <Main>
                      { initializing ? <Loading title="Loading..." /> :
+                        totalAbsenses > params.maxAbsenses ?
+                        <Container style={{ backgroundColor: "#FFF", 
+                        width: '90%',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: 32,
+                        borderRadius: 16 }}>
+                           <Text style={{ textAlign: 'left', width: '100%' }}>Dear student,</Text>
+
+                           <Text style={{ textAlign: 'left', width: '100%', marginTop: 32, marginBottom: 8 }}>Please send an e-mail to</Text>
+                           <TouchableOpacity style={{ textAlign: 'left', width: '100%' }} onPress={() => Linking.openURL(`mailto:${params.contactEmail}?subject=Student Dashboard`)}>
+                              <Text style={{ fontWeight: 'bold' }}>
+                                 <Entypo name="info-with-circle" /> {params.contactEmail}
+                              </Text>
+                           </TouchableOpacity>
+                           <Text style={{ textAlign: 'left', width: '100%', marginTop: 8, marginBottom: 32 }}>to receive information about your attendance.</Text>
+
+                           <Text style={{ textAlign: 'left', width: '100%' }}>MILA's Intelligence Team</Text>
+                        </Container>
+                        :
                         <ClassReport />
                      }
                     </Main>

@@ -63,19 +63,15 @@ export default function EnrollmentConfirmation({ setShowEnrollment }) {
                 <Text style={{ marginBottom: 16 }}>August 29 th,2022</Text>
                 
                 <Text style={{ marginBottom: 6 }}>Dear Mr./Mrs,</Text>
-                <Text style={{ marginBottom: 16 }}>This letter is to confirm that <Text style={{ fontWeight: 'bold' }}>Mr. {student.lastName}, {student.name}, SEVIS ID: {student.nsevis}</Text> is enrolled as
-                an F-1 student in our English School as a Second Language Program. His program is from
+                <Text style={{ marginBottom: 16 }}>This letter is to confirm that <Text style={{ fontWeight: 'bold' }}>{student.lastName}, {student.name}, SEVIS ID: {student.nsevis}</Text> is enrolled as
+                an F-1 student in our English School as a Second Language Program. The program is from
                 September 23, 2019, to December 31, 2023.</Text>
-                <Text style={{ marginBottom: 16 }}>During his attendance at Miami International Language Academy, he is taking courses in the
+                <Text style={{ marginBottom: 16 }}>During the attendance at Miami International Language Academy, <Text style={{ fontWeight: 'bold' }}>{student.lastName}, {student.name} </Text> is taking courses in the
                 different skills of Language learning: Grammar, Listening, Speaking, Reading, and Writing and is
                 enrolled as a full-time student.</Text>
                 <Text style={{ marginBottom: 16 }}>
-                    <Text style={{ fontWeight: 'bold' }}>Mr. {student.lastName}, {student.name} </Text>
-                    <Text> receives instruction Monday through Thursday, 18 hours a week, and is enrolled in the Pre-Advanced Level (CEFR) according to the Common European Framework.</Text>
-                </Text>
-                <Text style={{marginBottom: 16 }} >
-                    <Text style={{ fontWeight: 'bold' }}>Mr. {student.lastName}, {student.name} </Text>
-                    <Text>pays his tuition on time.</Text>
+                    <Text style={{ fontWeight: 'bold' }}>{student.lastName}, {student.name} </Text>
+                    <Text>receives instruction 18 hours a week, and is enrolled in the Pre-Advanced Level (CEFR) according to the Common European Framework.</Text>
                 </Text>
                 <Image style={styles.sign} source={require('../../global/images/signature.png')} />
                 <Text>PDSO – Principal Designated School Official</Text>

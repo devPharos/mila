@@ -26,6 +26,13 @@ export default function TabNavigation() {
             <Entypo name="chat" color={color} size={22} />
           ),
         }} /> */}
+    {/* <Tab.Screen name="Groupchat" component={Groupchat} options={{
+          tabBarLabel: 'Financeiro',
+          // tabBarBadge: 1,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="bank" color={color} size={22} />
+          ),
+        }} /> */}
     <Tab.Screen name="Dashboard" component={Dashboard} options={{
           tabBarLabel: 'Dashboard',
           // tabBarBadge: 1,

@@ -49,10 +49,10 @@ export default function ClassInfo({ periodClass, setClassInfo }) {
                 { periodClass.program.length > 0 ? periodClass.program.map((content,index) => 
                   <Text key={index} style={styles.modalText}>✔️ {content.description}</Text>
                 ) : <Text>In process...</Text> }
-                <Text style={[styles.modalTitle, { marginTop: 26 }]}>Teacher Notes</Text>
-                <Text style={styles.modalNote}>{periodClass.notes || 'Nothing noted.'}</Text>
+                {/* <Text style={[styles.modalTitle, { marginTop: 26 }]}>Teacher Notes</Text>
+                <Text style={styles.modalNote}>{periodClass.notes || 'Nothing noted.'}</Text> */}
                 <Pressable
-                style={[styles.button, { backgroundColor: periodClass.periodColor } ]}
+                style={[styles.button, { backgroundColor: periodClass.periodColor, marginTop: 26 } ]}
                 onPress={() => setClassInfo(null)}
                 >
                 <Text style={styles.textStyle}>Close</Text>

@@ -9,7 +9,7 @@ import { capitalizeFirstLetter } from '../global/functions/dashboard';
 export const RegisterContext = createContext([]);
 
 function RegisterProvider({ children }) {
-    const [student,setStudent] = useState({
+    const defaultStudent = {
         registrationNumber: null, 
         email: null, 
         registration: null, 
@@ -23,8 +23,11 @@ function RegisterProvider({ children }) {
         country: null,
         currentGroup: null,
         emailVerified: false
-    });
-    const [dashboard, setDashboard] = useState({ data: {}, fromDate: new Date() });
+    }
+    const defaultDashboard = { data: {}, fromDate: new Date() };
+    const [student,setStudent] = useState(defaultStudent);
+    const [dashboard, setDashboard] = useState(defaultDashboard);
+    const [params, setParams] = useState({ maxAbsenses: 0 });
 
     const [period,setPeriod] = useState(null);
     const [periods,setPeriods] = useState([]);
@@ -41,25 +44,28 @@ function RegisterProvider({ children }) {
     async function onAuthStateChanged(authenticated) {
 
         if(authenticated && authenticated.email) {
-            
+
+            await firestore()
+            .collection('Params')
+            .get()
+            .then(querySnapshot => {
+                querySnapshot.forEach(async documentSnapshot => {
+                    const data = documentSnapshot.data();
+                    setParams({...params, ...data });
+                })
+            })
+
             await firestore()
             .collection('Students')
             .where('email','==',authenticated.email)
             .get()
             .then(querySnapshot => {
                 querySnapshot.forEach(async documentSnapshot => {
-                    const data = documentSnapshot.data()
-
-                    firestore()
-                        .collection('Students')
-                        .doc(data.registrationNumber)
-                        .onSnapshot(async documentSnapshot => {
-                            const { email, name, lastName, level, schedule, birthDate, country, registration, registrationNumber, imageUrl } = documentSnapshot.data()
-                            setStudent({ ...student, email, name, lastName, level, schedule, birthDate, country, registration, registrationNumber, imageUrl})
-
-                            await getStudentFromAPI(registration, level, schedule, name, birthDate);
-                            await getDashboardData(registration)
-                        })
+                    const userFB = documentSnapshot.data()
+                    await getStudentFromAPI(userFB);
+                    
+                    setStudent({ ...student, email: userFB.email, name: userFB.name, lastName: userFB.lastName, level: userFB.level, schedule: userFB.schedule, birthDate: userFB.birthDate, country: userFB.country, registration: userFB.registration, registrationNumber: userFB.registrationNumber, imageUrl: userFB.imageUrl, nsevis: userFB.nsevis})
+                    await getDashboardData(userFB);
                 })
             })
         }
@@ -85,46 +91,33 @@ function RegisterProvider({ children }) {
         })
     }
 
-    async function getStudentFromFirestore(email, updateDashboard, setPeriod, setPeriods, setGroups, setPeriodDates, setPeriodDate, setInitializing) {
-        // console.log('Getting student by e-mail')
-        await firestore()
-        .collection('Students')
-        .where('email','==',email)
-        .get()
-        .then(querySnapshot => {
-              querySnapshot.forEach(async documentSnapshot => {
-              const { email, name, level, schedule, birthDate, country, registration, registrationNumber, imageUrl } = documentSnapshot.data()
-              setStudent({ ...student, email, name, level, schedule, birthDate, country, registration, registrationNumber, imageUrl})
-            //   console.log({ ...student, email, name, level, schedule, birthDate, country, registration, registrationNumber, imageUrl })
-
-              await getStudentFromAPI(registration, level, schedule, name, birthDate);
-              await getDashboardData(registration)
-              });
-        })
-
-    }
-
-    async function getStudentFromAPI(registration, level, schedule, name, birthDate) {
-        // console.log('getStudentFromAPI')
+    async function getStudentFromAPI(userFB) {
         try {
-           const { data } = await api.get(`/students/${registration}`);
+           const { data } = await api.get(`/students/${userFB.registration}`);
 
-            if(level !== capitalizeFirstLetter(data.data.currentGroup.level) || schedule !== capitalizeFirstLetter(data.data.currentGroup.schedule) || name !== capitalizeFirstLetter(data.data.name)) {
-                // console.log('Precisou atualizar no firestore', name, capitalizeFirstLetter(data.data.name))
-                firestore()
-                .collection('Students')
-                .where('email','==',student.email)
-                .get()
-                .then(querySnapshot => {
-                    querySnapshot.forEach((doc) => {
-                        firestore().collection('Students').doc(doc.id).update({
-                            name: capitalizeFirstLetter(data.data.name),
-                            level: capitalizeFirstLetter(data.data.currentGroup.level),
-                            schedule: capitalizeFirstLetter(data.data.currentGroup.schedule),
-                            birthDate: data.data.birthDate,
-                            country: data.data.country
-                        })
-                    })
+           let lastName = "";
+           const arrayLastName = data.data.lastName.split(" ");
+           for (var i = 0; i < arrayLastName.length; i++) {
+               if(lastName.trim() != '') {
+                   lastName += " ";
+               }
+               if(arrayLastName[i].length > 3) {
+                lastName += capitalizeFirstLetter(arrayLastName[i]);
+               } else {
+                lastName += arrayLastName[i];
+               }
+           }
+
+            if(userFB.nsevis !== data.data.nsevis || userFB.level !== capitalizeFirstLetter(data.data.currentGroup.level) || userFB.schedule !== capitalizeFirstLetter(data.data.currentGroup.schedule) || userFB.name !== capitalizeFirstLetter(data.data.name) || userFB.lastName !== lastName) {
+                console.log('Mudou')
+                await firestore().collection('Students').doc(userFB.registrationNumber).update({
+                    name: capitalizeFirstLetter(data.data.name),
+                    lastName,
+                    level: capitalizeFirstLetter(data.data.currentGroup.level),
+                    schedule: capitalizeFirstLetter(data.data.currentGroup.schedule),
+                    birthDate: data.data.birthDate,
+                    country: data.data.country,
+                    nsevis: data.data.nsevis
                 })
             }
            
@@ -133,8 +126,7 @@ function RegisterProvider({ children }) {
         }
     }
 
-    async function getDashboardData(registration) {
-        // console.log('Getting dashboard data...')
+    async function getDashboardData(userFB) {
         async function findUnique(datas) {
            const unique = [];
            datas.forEach(data => {
@@ -145,15 +137,25 @@ function RegisterProvider({ children }) {
            return unique;
         }
         try {
-           const { data } = await api.get(`/students/dashboard/${registration}`);
+           const { data } = await api.get(`/students/dashboard/${userFB.registration}`);
+           const today = new Date();
+           const month = today.getMonth();
+           const year = today.getFullYear();
+           const thisPeriod = year+"-"+(month+1).toString().padStart(2, '0');
+
             setDashboard({...dashboard, ...data.data, fromDate: new Date()});
-            setPeriod(data.data.periods[data.data.periods.length - 1]);
+            data.data.periods.map(p => {
+                if(p.period == thisPeriod) {
+                    setPeriod(p);
+                }
+            })
+
             setPeriods(data.data.periods);
-            setGroups(data.data.groups)
+            setGroups(data.data.groups);
+
             const myPeriods = await findUnique(data.data.periods.reverse());
             setPeriodDates(myPeriods);
-            setPeriodDate(myPeriods[0]);
-            // console.log('Gotted!', myPeriods[0])
+            setPeriodDate(thisPeriod);
         } catch(err) {
             // console.log('Error', err)
         }
@@ -165,7 +167,7 @@ function RegisterProvider({ children }) {
     }, []);
 
     return (
-        <RegisterContext.Provider value={{student, setStudent, dashboard, updateDashboard, profilePicChange, getStudentFromFirestore, getStudentFromAPI, getDashboardData, period,setPeriod, periods,setPeriods, periodDate,setPeriodDate,group,setGroup, periodDates,setPeriodDates,groups,setGroups}} >
+        <RegisterContext.Provider value={{student, setStudent, dashboard, updateDashboard, profilePicChange, getStudentFromAPI, getDashboardData, period,setPeriod, periods,setPeriods, periodDate,setPeriodDate,group,setGroup, periodDates,setPeriodDates,groups,setGroups, params}} >
             { children }
         </RegisterContext.Provider>
     )
