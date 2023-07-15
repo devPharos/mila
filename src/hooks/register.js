@@ -34,8 +34,11 @@ function RegisterProvider({ children }) {
     
     const [periodDate,setPeriodDate] = useState(null);
     const [periodDates,setPeriodDates] = useState([]);
+
     const [group,setGroup] = useState(null);
     const [groups,setGroups] = useState([]);
+
+    const [frequency,setFrequency] = useState(null);
 
     async function updateDashboard(data) {
         setDashboard({...dashboard, data, fromDate: new Date()})
@@ -152,6 +155,7 @@ function RegisterProvider({ children }) {
 
             setPeriods(data.data.periods);
             setGroups(data.data.groups);
+            setFrequency(data.data.frequency);
 
             const myPeriods = await findUnique(data.data.periods.reverse());
             setPeriodDates(myPeriods);
@@ -167,7 +171,7 @@ function RegisterProvider({ children }) {
     }, []);
 
     return (
-        <RegisterContext.Provider value={{student, setStudent, dashboard, updateDashboard, profilePicChange, getStudentFromAPI, getDashboardData, period,setPeriod, periods,setPeriods, periodDate,setPeriodDate,group,setGroup, periodDates,setPeriodDates,groups,setGroups, params}} >
+        <RegisterContext.Provider value={{student, setStudent, dashboard, updateDashboard, profilePicChange, getStudentFromAPI, getDashboardData, period,setPeriod, periods,setPeriods, periodDate,setPeriodDate,group,setGroup, periodDates,setPeriodDates,groups,setGroups, frequency, setFrequency, params}} >
             { children }
         </RegisterContext.Provider>
     )

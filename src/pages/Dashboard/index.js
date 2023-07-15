@@ -58,7 +58,7 @@ async function schedulePushNotification(month = 0, day = 0, hour = 0, minute = 0
 export function Dashboard({ navigation }) {
    // const { student } = useRegister();
    const [initializing, setInitializing] = useState(true);
-   const { periods, periodDate, setGroup, groups, params } = useContext(RegisterContext);
+   const { periods, periodDate, setGroup, groups, params, frequency } = useContext(RegisterContext);
    const [totalAbsenses, setTotalAbsenses] = useState(0)
 
    useEffect(() => {
@@ -118,7 +118,7 @@ export function Dashboard({ navigation }) {
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <Main>
                      { initializing ? <Loading title="Loading..." /> :
-                        totalAbsenses > params.maxAbsenses ?
+                        frequency[frequency.length - 1].percFrequency < 80 ?
                         <Container style={{ backgroundColor: "#FFF", 
                         width: '90%',
                         flexDirection: 'column',

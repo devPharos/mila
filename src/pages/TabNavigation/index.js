@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { Dashboard } from '../Dashboard';
 import { Profile } from '../Profile';
-import { FontAwesome, MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
+import { FontAwesome, MaterialCommunityIcons, Entypo, Ionicons } from '@expo/vector-icons';
 import theme from '../../global/styles/theme';
 import Groupchat from '../Groupchat';
 import { RegisterProvider, useRegister } from '../../hooks/register';
@@ -23,7 +23,7 @@ export default function TabNavigation() {
     {/* <Tab.Screen name="Groupchat" component={Groupchat} options={{
           tabBarLabel: 'Group Chat',
           tabBarIcon: ({ color }) => (
-            <Entypo name="chat" color={color} size={22} />
+            <Ionicons name="pricetags" color={color} size={22} />
           ),
         }} /> */}
     {/* <Tab.Screen name="Groupchat" component={Groupchat} options={{

@@ -4,7 +4,4 @@ export const Page = styled.View`
     flex: 1;
     background: ${({ theme }) => theme.colors.background };
 `;
-export const Profilepic = styled.View`
-    background: #FFF;
 
-`;

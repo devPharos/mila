@@ -78,11 +78,11 @@ export function Profile() {
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center'}}>
                <FontAwesome5 name="medal" color="#222" size={16} />
-               <Text>   {student.level}</Text>
+               <Text>   {student.level.toUpperCase()}</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center'}}>
                <FontAwesome5 name="medal" color="#222" size={16} />
-               <Text>   Valid Thru: Dec, 2023</Text>
+               <Text>   Valid Thru: Dec, {new Date().getFullYear()} </Text>
             </View>
          </View>
          <View style={{ flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-evenly', flex: 1, borderTopWidth: 1, borderTopColor: 'rgba(0,0,0,.1)', width: '90%' }}>
@@ -99,9 +99,9 @@ export function Profile() {
                />
             </View>
          </View>
-         <TouchableOpacity style={theme.buttons.secondaryButton} onPress={() => setShowEnrollment(true)}>
+         {/* <TouchableOpacity style={theme.buttons.secondaryButton} onPress={() => setShowEnrollment(true)}>
             <BtnText>📃 Enrollment Letter</BtnText>
-         </TouchableOpacity>
+         </TouchableOpacity> */}
             
             
          </Main>

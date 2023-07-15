@@ -13,13 +13,14 @@ import { format, parseISO } from 'date-fns';
 import { capitalizeFirstLetter } from '../../global/functions/dashboard';
 
 const ClassReport = () => {
-    const { group } = useContext(RegisterContext);
+    const { group, frequency } = useContext(RegisterContext);
     const [loading,setLoading] = useState(false);
     const props = {
         activeStrokeWidth: 10,
         inActiveStrokeWidth: 10,
         inActiveStrokeOpacity: 0.05
     };
+
 
   return (
     <>
@@ -31,12 +32,18 @@ const ClassReport = () => {
                 return (
                     <View key={index} style={{ width: '100%'}}>
                         { index == 0 ? 
-                        <Container style={{ width: '100%', marginBottom: 16, height: 50  }}>
+                        <Container style={{ width: '100%', marginBottom: 16, height: 100  }}>
                             <View  style={{ width: '100%', height: 50, backgroundColor: '#fff', borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <Text style={{ color: theme.colors.secondary, fontWeight: 'bold', fontSize: 14}}>Period Total Absences</Text>
-                            <View style={{ backgroundColor: "#efefef", width: 50, height: 35, borderRadius: 15, alignItems: 'center',justifyContent: 'center'}}>
-                            <Text style={{ color: '#222', fontSize: 14}}>{g.periodAbsences || 0}</Text>
+                                <Text style={{ color: theme.colors.secondary, fontWeight: 'bold', fontSize: 14}}>Period Total Absences</Text>
+                                <View style={{ backgroundColor: "#efefef", width: 60, height: 35, borderRadius: 15, alignItems: 'center',justifyContent: 'center'}}>
+                                    <Text style={{ color: '#222', fontSize: 14}}>{g.periodAbsences || 0}</Text>
+                                </View>
                             </View>
+                            <View  style={{ width: '100%', height: 50, marginTop: 6, backgroundColor: '#fff', borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Text style={{ color: theme.colors.secondary, fontWeight: 'bold', fontSize: 14}}>Period Frequency</Text>
+                                <View style={{ backgroundColor: "#efefef", width: 60, height: 35, borderRadius: 15, alignItems: 'center',justifyContent: 'center'}}>
+                                    <Text style={{ color: '#222', fontSize: 14}}>{frequency[frequency.length - 1].percFrequency || 0} %</Text>
+                                </View>
                             </View>
                         </Container>
                         : null }
