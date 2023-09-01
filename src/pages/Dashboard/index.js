@@ -7,59 +7,58 @@ import ClassReport from '../../components/ClassReport';
 import Loading from '../../components/Loading';
 import { Entypo } from '@expo/vector-icons';
 import { isAfter, isBefore, parseISO } from 'date-fns';
-import * as Notifications from 'expo-notifications';
+// import * as Notifications from 'expo-notifications';
 
-Notifications.setNotificationHandler({
-   handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: false,
-      shouldSetBadge: false,
-   }),
-});
+// Notifications.setNotificationHandler({
+//    handleNotification: async () => ({
+//       shouldShowAlert: true,
+//       shouldPlaySound: false,
+//       shouldSetBadge: false,
+//    }),
+// });
 
 // async function registerForPushNotificationsAsync() {
-//    let token;
+   //    let token;
 
-//    if (Platform.OS === 'android') {
-//    await Notifications.setNotificationChannelAsync('default', {
-//       name: 'default',
-//       importance: Notifications.AndroidImportance.MAX,
-//       vibrationPattern: [0, 250, 250, 250],
-//       lightColor: '#FF231F7C',
-//    });
-//    }
+   //    if (Platform.OS === 'android') {
+   //    await Notifications.setNotificationChannelAsync('default', {
+   //       name: 'default',
+   //       importance: Notifications.AndroidImportance.MAX,
+   //       vibrationPattern: [0, 250, 250, 250],
+   //       lightColor: '#FF231F7C',
+   //    });
+   //    }
 
-//    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-//    let finalStatus = existingStatus;
-//    if (existingStatus !== 'granted') {
-//       const { status } = await Notifications.requestPermissionsAsync();
-//       finalStatus = status;
-//    }
-//    if (finalStatus !== 'granted') {
-//       alert('Failed to get push token for push notification!');
-//       return;
-//    }
-//    token = (await Notifications.getExpoPushTokenAsync()).data;
+   //    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+   //    let finalStatus = existingStatus;
+   //    if (existingStatus !== 'granted') {
+   //       const { status } = await Notifications.requestPermissionsAsync();
+   //       finalStatus = status;
+   //    }
+   //    if (finalStatus !== 'granted') {
+   //       alert('Failed to get push token for push notification!');
+   //       return;
+   //    }
+   //    token = (await Notifications.getExpoPushTokenAsync()).data;
 
-//    return token;
+   //    return token;
 // }
 
-async function schedulePushNotification(month = 0, day = 0, hour = 0, minute = 0) {
-   await Notifications.scheduleNotificationAsync({
-   content: {
-      title: "Today is your birthday! 🎉",
-      body: 'Happy birthday to you!',
-      // data: { data: 'goes here' },
-   },
-   trigger: { day, month, hour, minute, repeats: true },
-   });
-}
+// async function schedulePushNotification(month = 0, day = 0, hour = 0, minute = 0) {
+//    await Notifications.scheduleNotificationAsync({
+//    content: {
+//       title: "Today is your birthday! 🎉",
+//       body: 'Happy birthday to you!',
+//       // data: { data: 'goes here' },
+//    },
+//    trigger: { day, month, hour, minute, repeats: true },
+//    });
+// }
 
 export function Dashboard({ navigation }) {
    // const { student } = useRegister();
    const [initializing, setInitializing] = useState(true);
-   const { periods, periodDate, setGroup, groups, params, frequency } = useContext(RegisterContext);
-   const [totalAbsenses, setTotalAbsenses] = useState(0)
+   const { periods, periodDate, setGroup, groups, params, frequency, student } = useContext(RegisterContext);
 
    useEffect(() => {
       if(periodDate) {
@@ -103,12 +102,10 @@ export function Dashboard({ navigation }) {
          retGroups.map(group => {
             return group.periodAbsences = periodAbsences;
          })
-         setTotalAbsenses(periodAbsences);
          setGroup(retGroups);
          setInitializing(false);
       }
    },[periodDate])
-    
     return (
     <Page>
       <Header showLogo={true} />
@@ -118,7 +115,7 @@ export function Dashboard({ navigation }) {
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <Main>
                      { initializing ? <Loading title="Loading..." /> :
-                        frequency[frequency.length - 1].percFrequency < 80 ?
+                        frequency[frequency.length - 1].percFrequency < params.maxAbsenses ?
                         <Container style={{ backgroundColor: "#FFF", 
                         width: '90%',
                         flexDirection: 'column',
@@ -129,11 +126,25 @@ export function Dashboard({ navigation }) {
                            <Text style={{ textAlign: 'left', width: '100%' }}>Dear student,</Text>
 
                            <Text style={{ textAlign: 'left', width: '100%', marginTop: 32, marginBottom: 8 }}>Please send an e-mail to</Text>
-                           <TouchableOpacity style={{ textAlign: 'left', width: '100%' }} onPress={() => Linking.openURL(`mailto:${params.contactEmail}?subject=Student Dashboard`)}>
-                              <Text style={{ fontWeight: 'bold' }}>
-                                 <Entypo name="info-with-circle" /> {params.contactEmail}
-                              </Text>
-                           </TouchableOpacity>
+                           { student.registrationNumber.substring(0,3) === 'ORL' ?
+                              <TouchableOpacity style={{ textAlign: 'left', width: '100%' }} onPress={() => Linking.openURL(`mailto:${params.contact_orl}?subject=Student Dashboard`)}>
+                                 <Text style={{ fontWeight: 'bold' }}>
+                                    <Entypo name="info-with-circle" /> {params.contact_orl}
+                                 </Text>
+                              </TouchableOpacity>
+                           : student.registrationNumber.substring(0,3) === 'MIA' ? 
+                              <TouchableOpacity style={{ textAlign: 'left', width: '100%' }} onPress={() => Linking.openURL(`mailto:${params.contact_mia}?subject=Student Dashboard`)}>
+                                 <Text style={{ fontWeight: 'bold' }}>
+                                    <Entypo name="info-with-circle" /> {params.contact_mia}
+                                 </Text>
+                              </TouchableOpacity>
+                           : 
+                              <TouchableOpacity style={{ textAlign: 'left', width: '100%' }} onPress={() => Linking.openURL(`mailto:${params.contact_orl}?subject=Student Dashboard`)}>
+                                 <Text style={{ fontWeight: 'bold' }}>
+                                    <Entypo name="info-with-circle" /> {params.contact_orl}
+                                 </Text>
+                              </TouchableOpacity>
+                           }
                            <Text style={{ textAlign: 'left', width: '100%', marginTop: 8, marginBottom: 32 }}>to receive information about your attendance.</Text>
 
                            <Text style={{ textAlign: 'left', width: '100%' }}>MILA's Intelligence Team</Text>

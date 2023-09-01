@@ -2,7 +2,7 @@
   "expo": {
     "name": "MILA Student",
     "slug": "studentdashboard",
-    "version": "1.0.10",
+    "version": "1.0.11",
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -18,17 +18,23 @@
       "@react-native-firebase/perf",
       "@react-native-firebase/crashlytics",
       "sentry-expo",
-      ["expo-image-picker",
+      [
+        "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to use as a profile image."
         }
       ],
       [
-        "expo-notifications",
+        "expo-build-properties",
         {
-          "icon": "./assets/icon.png",
-          "color": "#ffffff",
-          "mode": "production"
+          "android": {
+            "compileSdkVersion": 33,
+            "targetSdkVersion": 33,
+            "buildToolsVersion": "33.0.0"
+          },
+          "ios": {
+            "deploymentTarget": "13.0"
+          }
         }
       ]
     ],

@@ -7,7 +7,7 @@ import * as FileSystem from 'expo-file-system';
 import storage from '@react-native-firebase/storage';
 
 
-import RNImageToPdf from 'react-native-image-to-pdf';
+// import RNImageToPdf from 'react-native-image-to-pdf';
 import { useRegister } from '../../hooks/register';
 
 // import { Container } from './styles';
@@ -20,23 +20,23 @@ export default function EnrollmentConfirmation({ setShowEnrollment }) {
         ref.current.capture().then(async uri => {
 
             try {
-                const options = {
-                    imagePaths: [uri.replace('file://', '')],
-                    name: 'PDFName.pdf',
-                    // maxSize: { // optional maximum image dimension - larger images will be resized
-                    //     width: 900,
-                    //     height: Math.round(deviceHeight() / deviceWidth() * 900),
-                    // },
-                    quality: .7, // optional compression paramter
-                };
-                const pdf = await RNImageToPdf.createPDFbyImages(options);
+                // const options = {
+                //     imagePaths: [uri.replace('file://', '')],
+                //     name: 'PDFName.pdf',
+                //     // maxSize: { // optional maximum image dimension - larger images will be resized
+                //     //     width: 900,
+                //     //     height: Math.round(deviceHeight() / deviceWidth() * 900),
+                //     // },
+                //     quality: .7, // optional compression paramter
+                // };
+                // const pdf = await RNImageToPdf.createPDFbyImages(options);
 
                 // Requests permissions for external directory
-                const reference = storage().ref('enrollment_'+student.registrationNumber+'.pdf');
+                // const reference = storage().ref('enrollment_'+student.registrationNumber+'.pdf');
                 // uploads file
-                await reference.putFile(pdf.filePath);
-                const pdfFile = await storage().ref('enrollment_'+student.registrationNumber+'.pdf').getDownloadURL()
-                Linking.openURL(pdfFile)
+                // await reference.putFile(pdf.filePath);
+                // const pdfFile = await storage().ref('enrollment_'+student.registrationNumber+'.pdf').getDownloadURL()
+                // Linking.openURL(pdfFile)
                 
             } catch(e) {
             }

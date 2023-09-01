@@ -140,7 +140,9 @@ function RegisterProvider({ children }) {
            return unique;
         }
         try {
+            console.log('Começou')
            const { data } = await api.get(`/students/dashboard/${userFB.registration}`);
+           console.log('terminou')
            const today = new Date();
            const month = today.getMonth();
            const year = today.getFullYear();
