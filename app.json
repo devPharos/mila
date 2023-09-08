@@ -2,7 +2,7 @@
   "expo": {
     "name": "MILA Student",
     "slug": "studentdashboard",
-    "version": "1.0.11",
+    "version": "1.0.12",
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -24,19 +24,7 @@
           "photosPermission": "The app accesses your photos to use as a profile image."
         }
       ],
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "compileSdkVersion": 33,
-            "targetSdkVersion": 33,
-            "buildToolsVersion": "33.0.0"
-          },
-          "ios": {
-            "deploymentTarget": "13.0"
-          }
-        }
-      ]
+      "expo-build-properties"
     ],
     "icon": "./assets/icon.png",
     "splash": {

@@ -33,17 +33,17 @@ const ClassesList = ({ periodClasses, group }) => {
           </TouchableOpacity>
           <Animated.View style={[animatedStyle,styles.container]}>
           { periodClasses.map((periodClass,index) => {
-            const icon = periodClass.presenceStatus == 'Sick' ? theme.icons.Sick
-                        : periodClass.presenceStatus == 'Absent' ? theme.icons.Absent 
-                        : periodClass.presenceStatus == 'Transfer' ? theme.icons.Transfer 
-                        : periodClass.presenceStatus == 'Vacation' ? theme.icons.Vacation
-                        : periodClass.presenceStatus == 'Half Present' ? theme.icons.Halfpresent
+            const icon = periodClass.presenceStatus === 'Sick' ? theme.icons.Sick
+                        : periodClass.presenceStatus === 'Absent' ? theme.icons.Absent 
+                        : periodClass.presenceStatus === 'Transfer' ? theme.icons.Transfer 
+                        : periodClass.presenceStatus === 'Vacation' ? theme.icons.Vacation
+                        : periodClass.presenceStatus === 'Half Present' ? theme.icons.Halfpresent
                         : theme.icons.Present;
-            const periodColor = periodClass.presenceStatus == 'Sick' ? theme.colors.Sick 
-                        : periodClass.presenceStatus == 'Absent' ? theme.colors.Absent 
-                        : periodClass.presenceStatus == 'Transfer' ? theme.colors.Transfer 
-                        : periodClass.presenceStatus == 'Vacation' ? theme.colors.Vacation 
-                        : periodClass.presenceStatus == 'Half Present' ? theme.colors.Halfpresent
+            const periodColor = periodClass.presenceStatus === 'Sick' ? theme.colors.Sick 
+                        : periodClass.presenceStatus === 'Absent' ? theme.colors.Absent 
+                        : periodClass.presenceStatus === 'Transfer' ? theme.colors.Transfer 
+                        : periodClass.presenceStatus === 'Vacation' ? theme.colors.Vacation 
+                        : periodClass.presenceStatus === 'Half Present' ? theme.colors.Halfpresent
                         : theme.colors.Present
             periodClass.icon = icon;
             periodClass.periodColor = periodColor;

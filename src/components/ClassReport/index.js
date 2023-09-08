@@ -99,7 +99,7 @@ const ClassReport = () => {
                                 </View>
                             </View>
                         </Canvas>
-                        <ClassesList periodClasses={g.classes} group={g} />
+                        <ClassesList periodClasses={g.classes.filter(period => (period.presenceStatus !== ''))} group={g} />
                     </View>
                 )
             })

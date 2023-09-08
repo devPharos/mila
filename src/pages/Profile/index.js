@@ -31,7 +31,7 @@ export function Profile() {
       });
 
   
-      if (!result.cancelled) {
+      if (!result.canceled) {
          await profilePicChange(result.uri, student.registrationNumber, authenticated.email);
       }
     };
