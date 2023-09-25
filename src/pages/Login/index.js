@@ -78,9 +78,15 @@ export function Login({ route, navigation }) {
                     </KeyboardAvoidingView>
                 </Container>
                 { !loading ?
-                <TouchableOpacity style={theme.buttons.secondaryButton} onPress={handleSubmit(handleFindId)}>
-                    <BtnText>Log In</BtnText>
-                </TouchableOpacity>
+                <>
+                    <TouchableOpacity style={theme.buttons.secondaryButton} onPress={handleSubmit(handleFindId)}>
+                        <BtnText>Log In</BtnText>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={theme.buttons.secondaryButtonSimple} onPress={() => { navigation.push('Forgot')}}>
+                        <Text style={{ color: theme.colors.secondary }}>I forgot my password</Text>
+                    </TouchableOpacity>
+                </>
                 : 
                 <View style={theme.buttons.secondaryButton}>
                     <BtnText>Searching...</BtnText>

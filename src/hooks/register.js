@@ -140,9 +140,7 @@ function RegisterProvider({ children }) {
            return unique;
         }
         try {
-            console.log('Começou')
            const { data } = await api.get(`/students/dashboard/${userFB.registration}`);
-           console.log('terminou')
            const today = new Date();
            const month = today.getMonth();
            const year = today.getFullYear();
@@ -198,6 +196,22 @@ function logIn(form, setLoginError, loginError, setLoading) {
         if(error.code === 'auth/user-not-found') {
             setLoginError({ ...loginError, email: true, registrationNumber: true });
             Alert.alert("Attention!","Registration Number or Email Address not found. Please check your invitation to confirm.");
+        }
+    });
+}
+
+function forgotPW(form, setLoginError, loginError, setLoading, setRecoverySent) {
+    auth()
+    .sendPasswordResetEmail(form.email)
+    .then(() => {
+        setLoading(false)
+        setRecoverySent(true);
+    })
+    .catch(error => {
+        setLoading(false)
+        if(error.code === 'auth/user-not-found') {
+            setLoginError({ ...loginError, email: true });
+            // Alert.alert("Attention!","Email Address not found.");
         }
     });
 }
@@ -268,4 +282,4 @@ function useRegister() {
     return context
 }
 
-export { RegisterProvider, useRegister, createUserWithEmailAndPassword, findUserByEmailAndStudentCode, logIn, logOut }
+export { RegisterProvider, useRegister, createUserWithEmailAndPassword, findUserByEmailAndStudentCode, logIn, logOut, forgotPW }

@@ -13,6 +13,7 @@ import { RegisterProvider } from './src/hooks/register';
 import auth from '@react-native-firebase/auth';
 import { CreatePassword } from './src/pages/CreatePassword';
 import { Login } from './src/pages/Login';
+import { Forgot } from './src/pages/Forgot';
 import { LastStep } from './src/pages/LastStep';
 import TabNavigation from './src/pages/TabNavigation';
 
@@ -70,6 +71,7 @@ export default function App() {
                     <Stack.Screen name="FirstAccess" component={FirstAccess} />
                     <Stack.Screen name="CreatePassword" component={CreatePassword} />
                     <Stack.Screen name="Login" component={Login} />
+                    <Stack.Screen name="Forgot" component={Forgot} />
                   </Stack.Group>
                 )
                 }
