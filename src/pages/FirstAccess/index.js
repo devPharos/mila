@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { TouchableOpacity, Text, TouchableWithoutFeedback, Keyboard, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { TouchableOpacity, Text, TouchableWithoutFeedback, Keyboard, View, Alert } from 'react-native';
 import theme from '../../global/styles/theme';
 import { useForm } from 'react-hook-form'
 import * as Yup from 'yup';
@@ -10,6 +10,7 @@ import Header from '../../components/Header';
 import Input from '../../components/Forms/Input';
 import RegistrationStatus from '../../components/RegistrationStatus';
 import Logo from '../../components/Logo';
+import firestore from '@react-native-firebase/firestore';
 
 import { Page, Container, BtnText, Main } from './styles';
 import { findUserByEmailAndStudentCode, useRegister } from '../../hooks/register';
@@ -24,6 +25,7 @@ export function FirstAccess({ route, navigation }) {
     const account = useRegister();
     let defaultAccountvalues = { email: '', registrationNumber: '' }
     const [loading,setLoading] = useState(false);
+    const [params, setParams] = useState({access_orlando: true, access_miami: true, allowed_users: ''})
 
     if(route.params) {
         const { existEmail, existRegistrationNumber } = route.params;
@@ -33,6 +35,18 @@ export function FirstAccess({ route, navigation }) {
 
     const { control,handleSubmit,formState: { errors } } = useForm({ defaultValues: defaultAccountvalues, resolver: yupResolver(schema) });
 
+    useEffect(() => {
+        firestore()
+            .collection('Params')
+            .get()
+            .then(querySnapshot => {
+                querySnapshot.forEach(async documentSnapshot => {
+                    const data = documentSnapshot.data();
+                    setParams(data);
+                })
+            })
+    },[])
+
     async function handleFindId(form) {
         setLoading(true)
         const { registrationNumber, email } = form;
@@ -40,6 +54,22 @@ export function FirstAccess({ route, navigation }) {
         account.registration = null;
         account.registrationNumber = null;
         account.searched = true;
+
+        if(!params.allowed_users.includes(form.registrationNumber.trim())) {
+
+            if(form.registrationNumber.substring(0,3) === 'ORL' && params.access_orlando === false) {
+                Alert.alert("Attention!","Orlando access is not yet avaiable.")
+                setLoading(false)
+                return
+            }
+    
+            if(form.registrationNumber.substring(0,3) === 'MIA' && params.access_miami === false) {
+                Alert.alert("Attention!","Miami access is not yet avaiable.")
+                setLoading(false)
+                return
+            }
+            
+        }
         try {
             //Verificação na API do MILA Pro referente a Registration Number e Email.
             const { data } = await api.get(`/students/${registrationNumber}/${email}/`);

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { TouchableOpacity, Text, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, View } from 'react-native';
+import { TouchableOpacity, Text, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, View, Alert } from 'react-native';
 import theme from '../../global/styles/theme';
 import { useForm } from 'react-hook-form'
 import * as Yup from 'yup';
@@ -9,10 +9,11 @@ import Header from '../../components/Header';
 import Input from '../../components/Forms/Input';
 import RegistrationStatus from '../../components/RegistrationStatus';
 import Logo from '../../components/Logo';
-import api from '../../service/api';
+import firestore from '@react-native-firebase/firestore';
 
 import { Page, Container, BtnText, Main } from './styles';
 import { useRegister, logIn } from '../../hooks/register';
+import api from '../../service/api';
 
 
 
@@ -27,6 +28,7 @@ export function Login({ route, navigation }) {
     const account = useRegister();
     const [loading,setLoading] = useState(false);
     const [loginError,setLoginError] = useState({ pass: false, registrationNumber: false, email: false});
+    const [params, setParams] = useState({access_orlando: true, access_miami: true, allowed_users: '' })
     let defaultAccountvalues = { email: '', registrationNumber: '', pass: '' }
 
     if(route.params) {
@@ -38,13 +40,43 @@ export function Login({ route, navigation }) {
     
     const { control,handleSubmit,formState: { errors } } = useForm({ defaultValues: defaultAccountvalues, resolver: yupResolver(schema) });
 
+    useEffect(() => {
+        firestore()
+            .collection('Params')
+            .get()
+            .then(querySnapshot => {
+                querySnapshot.forEach(async documentSnapshot => {
+                    const data = documentSnapshot.data();
+                    setParams(data);
+                })
+            })
+    },[])
+
     async function handleFindId(form) {
         setLoading(true)
         setLoginError({ pass: false, email: false, registrationNumber: false });
+
+        if(!params.allowed_users.includes(form.registrationNumber.trim())) {
+            if(form.registrationNumber.substring(0,3) === 'ORL' && params.access_orlando === false) {
+                Alert.alert("Attention!","Orlando access is not yet avaiable.")
+                setLoading(false)
+                return
+            }
+    
+            if(form.registrationNumber.substring(0,3) === 'MIA' && params.access_miami === false) {
+                Alert.alert("Attention!","Miami access is not yet avaiable.")
+                setLoading(false)
+                return
+            }
+            
+        }
+
         try {
             await api.get(`/students/${form.registrationNumber}/${form.email}/`);
+            setLoading(false)
             logIn(form, setLoginError, loginError, setLoading);
         } catch(err) {
+            console.log(err)
             setLoading(false)
         }
         

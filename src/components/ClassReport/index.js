@@ -36,7 +36,7 @@ const ClassReport = () => {
                             <View  style={{ width: '100%', height: 50, backgroundColor: '#fff', borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <Text style={{ color: theme.colors.secondary, fontWeight: 'bold', fontSize: 14}}>Period Total Absences</Text>
                                 <View style={{ backgroundColor: "#efefef", width: 60, height: 35, borderRadius: 15, alignItems: 'center',justifyContent: 'center'}}>
-                                    <Text style={{ color: '#222', fontSize: 14}}>{g.periodAbsences || 0}</Text>
+                                    <Text style={{ color: '#222', fontSize: 14}}>{frequency[frequency.length - 1].totalAbsences || 0}</Text>
                                 </View>
                             </View>
                             <View  style={{ width: '100%', height: 50, marginTop: 6, backgroundColor: '#fff', borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>

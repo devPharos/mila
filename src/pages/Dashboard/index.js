@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { TouchableWithoutFeedback, Keyboard, ScrollView, Text, TouchableOpacity, Linking } from 'react-native';
+import { TouchableWithoutFeedback, Keyboard, ScrollView, Text, TouchableOpacity, Linking, Alert } from 'react-native';
 import Header from '../../components/Header';
 import { Page, Container, Main } from './styles';
-import { RegisterContext } from '../../hooks/register';
+import { RegisterContext, logOut } from '../../hooks/register';
 import ClassReport from '../../components/ClassReport';
 import Loading from '../../components/Loading';
 import { Entypo } from '@expo/vector-icons';
@@ -56,9 +56,24 @@ import { isAfter, isBefore, parseISO } from 'date-fns';
 // }
 
 export function Dashboard({ navigation }) {
-   // const { student } = useRegister();
    const [initializing, setInitializing] = useState(true);
    const { periods, periodDate, setGroup, groups, params, frequency, student } = useContext(RegisterContext);
+
+   useEffect(() => {
+      if(student.registrationNumber) {
+         if(!params.allowed_users.includes(student.registrationNumber.trim())) {
+            if(student.registrationNumber.substring(0,3) === 'ORL' && params.access_orlando === false) {
+                  Alert.alert("Attention!","Orlando access is not yet avaiable.")
+                  logOut()
+            }
+         
+            if(student.registrationNumber.substring(0,3) === 'MIA' && params.access_miami === false) {
+                  Alert.alert("Attention!","Miami access is not yet avaiable.")
+                  logOut()
+            }
+         }
+      }
+   },[params.allowed_users, params.access_orlando, params.access_miami, student.registrationNumber])
 
    useEffect(() => {
       if(periodDate) {
@@ -81,7 +96,7 @@ export function Dashboard({ navigation }) {
                            if(isAfter(parseISO(pclass.classDate),parseISO(g.studentStartDate)) && isBefore(parseISO(pclass.classDate),g.studentEndDate ? parseISO(g.studentEndDate) : parseISO(g.groupEndDate))) {
                               // console.log('pclass',pclass)
                               g.classes.push(pclass);
-                              g.totalAbsences = p.totalAbsences || 0;
+                              // g.totalAbsences = p.totalAbsences || 0;
                            }
                         })
                      }
@@ -95,13 +110,13 @@ export function Dashboard({ navigation }) {
                      })
                   }
                })
-               periodAbsences += parseInt(g.totalAbsences || 0)
+               // periodAbsences += parseInt(g.totalAbsences || 0)
                retGroups.push(g);
             }
          })
-         retGroups.map(group => {
-            return group.periodAbsences = periodAbsences;
-         })
+         // retGroups.map(group => {
+         //    return group.periodAbsences = periodAbsences;
+         // })
          setGroup(retGroups);
          setInitializing(false);
       }

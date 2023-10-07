@@ -27,7 +27,7 @@ function RegisterProvider({ children }) {
     const defaultDashboard = { data: {}, fromDate: new Date() };
     const [student,setStudent] = useState(defaultStudent);
     const [dashboard, setDashboard] = useState(defaultDashboard);
-    const [params, setParams] = useState({ maxAbsenses: 0 });
+    const [params, setParams] = useState({ maxAbsenses: 0, access_orlando: true, access_miami: true, allowed_users: '' });
 
     const [period,setPeriod] = useState(null);
     const [periods,setPeriods] = useState([]);
@@ -53,24 +53,26 @@ function RegisterProvider({ children }) {
             .get()
             .then(querySnapshot => {
                 querySnapshot.forEach(async documentSnapshot => {
-                    const data = documentSnapshot.data();
-                    setParams({...params, ...data });
+                    const dataParams = documentSnapshot.data();
+                    setParams({...dataParams });
+                })
+            }).finally(async () => {
+                await firestore()
+                .collection('Students')
+                .where('email','==',authenticated.email)
+                .get()
+                .then(querySnapshot => {
+                    querySnapshot.forEach(async documentSnapshot => {
+                        const userFB = documentSnapshot.data()
+                        await getStudentFromAPI(userFB);
+                        
+                        setStudent({ ...student, email: userFB.email, name: userFB.name, lastName: userFB.lastName, level: userFB.level, schedule: userFB.schedule, birthDate: userFB.birthDate, country: userFB.country, registration: userFB.registration, registrationNumber: userFB.registrationNumber, imageUrl: userFB.imageUrl, nsevis: userFB.nsevis})
+                        await getDashboardData(userFB);
+                    })
                 })
             })
 
-            await firestore()
-            .collection('Students')
-            .where('email','==',authenticated.email)
-            .get()
-            .then(querySnapshot => {
-                querySnapshot.forEach(async documentSnapshot => {
-                    const userFB = documentSnapshot.data()
-                    await getStudentFromAPI(userFB);
-                    
-                    setStudent({ ...student, email: userFB.email, name: userFB.name, lastName: userFB.lastName, level: userFB.level, schedule: userFB.schedule, birthDate: userFB.birthDate, country: userFB.country, registration: userFB.registration, registrationNumber: userFB.registrationNumber, imageUrl: userFB.imageUrl, nsevis: userFB.nsevis})
-                    await getDashboardData(userFB);
-                })
-            })
+            
         }
 
     }
@@ -112,7 +114,6 @@ function RegisterProvider({ children }) {
            }
 
             if(userFB.nsevis !== data.data.nsevis || userFB.level !== capitalizeFirstLetter(data.data.currentGroup.level) || userFB.schedule !== capitalizeFirstLetter(data.data.currentGroup.schedule) || userFB.name !== capitalizeFirstLetter(data.data.name) || userFB.lastName !== lastName) {
-                console.log('Mudou')
                 await firestore().collection('Students').doc(userFB.registrationNumber).update({
                     name: capitalizeFirstLetter(data.data.name),
                     lastName,
@@ -140,11 +141,11 @@ function RegisterProvider({ children }) {
            return unique;
         }
         try {
-           const { data } = await api.get(`/students/dashboard/${userFB.registration}`);
-           const today = new Date();
-           const month = today.getMonth();
-           const year = today.getFullYear();
-           const thisPeriod = year+"-"+(month+1).toString().padStart(2, '0');
+            const today = new Date();
+            const month = today.getMonth();
+            const year = today.getFullYear();
+            const thisPeriod = year+"-"+(month+1).toString().padStart(2, '0');
+            const { data } = await api.get(`/students/dashboard/${userFB.registration}/${thisPeriod}/`);
 
             setDashboard({...dashboard, ...data.data, fromDate: new Date()});
             data.data.periods.map(p => {
@@ -182,22 +183,46 @@ function logOut() {
         .signOut()
 }
 
-function logIn(form, setLoginError, loginError, setLoading) {
-    auth()
-    .signInWithEmailAndPassword(form.email, form.pass)
-    .then(() => {
-    })
-    .catch(error => {
-        setLoading(false)
-        if(error.code === 'auth/wrong-password') {
-            setLoginError({ ...loginError, pass: true });
-            Alert.alert("Attention!","Wrong password.");
-        }
-        if(error.code === 'auth/user-not-found') {
-            setLoginError({ ...loginError, email: true, registrationNumber: true });
-            Alert.alert("Attention!","Registration Number or Email Address not found. Please check your invitation to confirm.");
-        }
-    });
+async function logIn(form, setLoginError, loginError, setLoading) {
+    let params = {}
+    await firestore()
+        .collection('Params')
+        .get()
+        .then(querySnapshot => {
+            querySnapshot.forEach(async documentSnapshot => {
+                params = documentSnapshot.data();
+            })
+        }).finally(() => {
+
+            if(!params.allowed_users.includes(form.registrationNumber.trim())) {
+                if(form.registrationNumber && form.registrationNumber.substring(0,3) === 'ORL' && params.access_orlando === false) {
+                    Alert.alert("Attention!","Orlando access is not yet avaiable.")
+                    return
+                }
+            
+                if(form.registrationNumber && form.registrationNumber.substring(0,3) === 'MIA' && params.access_miami === false) {
+                    Alert.alert("Attention!","Miami access is not yet avaiable.")
+                    return
+                }
+            }
+
+            auth()
+                .signInWithEmailAndPassword(form.email, form.pass)
+                .then(() => {
+                })
+                .catch(error => {
+                    setLoading(false)
+                    if(error.code === 'auth/wrong-password') {
+                        setLoginError({ ...loginError, pass: true });
+                        Alert.alert("Attention!","Wrong password.");
+                    }
+                    if(error.code === 'auth/user-not-found') {
+                        setLoginError({ ...loginError, email: true, registrationNumber: true });
+                        Alert.alert("Attention!","Registration Number or Email Address not found. Please check your invitation to confirm.");
+                    }
+                });
+        })
+
 }
 
 function forgotPW(form, setLoginError, loginError, setLoading, setRecoverySent) {
