@@ -25,7 +25,7 @@ export function FirstAccess({ route, navigation }) {
     const account = useRegister();
     let defaultAccountvalues = { email: '', registrationNumber: '' }
     const [loading,setLoading] = useState(false);
-    const [params, setParams] = useState({access_orlando: true, access_miami: true, allowed_users: ''})
+    const [params, setParams] = useState({access_orlando: true, access_miami: true, allowed_users: '', version_android: '', version_ios: ''})
 
     if(route.params) {
         const { existEmail, existRegistrationNumber } = route.params;
@@ -57,14 +57,14 @@ export function FirstAccess({ route, navigation }) {
 
         if(!params.allowed_users.includes(form.registrationNumber.trim())) {
 
-            if(form.registrationNumber.substring(0,3) === 'ORL' && params.access_orlando === false) {
-                Alert.alert("Attention!","Orlando access is not yet avaiable.")
+            if(form.registrationNumber.toUpperCase().substring(0,3) === 'ORL' && params.access_orlando === false) {
+                Alert.alert("Attention!","Orlando access is not yet available.")
                 setLoading(false)
                 return
             }
     
             if(form.registrationNumber.substring(0,3) === 'MIA' && params.access_miami === false) {
-                Alert.alert("Attention!","Miami access is not yet avaiable.")
+                Alert.alert("Attention!","Miami access is not yet available.")
                 setLoading(false)
                 return
             }
@@ -74,8 +74,8 @@ export function FirstAccess({ route, navigation }) {
             //Verificação na API do MILA Pro referente a Registration Number e Email.
             const { data } = await api.get(`/students/${registrationNumber}/${email}/`);
             account.registration = data.data.studentID;
-            account.registrationNumber = registrationNumber;
-            account.email = email;
+            account.registrationNumber = registrationNumber.toUpperCase();
+            account.email = email.toLowerCase();
             findUserByEmailAndStudentCode(account, navigation);
         } catch(err) {
             setLoading(false)

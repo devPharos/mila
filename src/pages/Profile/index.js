@@ -1,5 +1,5 @@
 import React, {  useState, useEffect, useContext } from 'react';
-import { Page, Main, Profilepic, BtnText } from './styles';
+import { Page, Main, Profilepic } from './styles';
 import { TouchableOpacity, ScrollView, Text, View, Image } from 'react-native';
 import { FontAwesome, FontAwesome5 } from '@expo/vector-icons';
 import auth from '@react-native-firebase/auth';
@@ -12,6 +12,8 @@ import logoFromFile from '../../global/images/icon_4x.png'
 import * as ImagePicker from 'expo-image-picker';
 import EnrollmentConfirmation from '../../components/EnrollmentConfirmation';
 import Birthday from '../../components/Birthday';
+import { format } from 'date-fns';
+import { Buffer } from 'buffer'
 
 
 
@@ -37,10 +39,10 @@ export function Profile() {
     };
 
     useEffect(() => {
-      if(student.isBirthday) {
+      if(student.birthDate.substring(5) === format(new Date(), 'MM-dd')) {
          setOpenBirthdayModal(true);
       }
-    },[student.registrationNumber])
+    },[student])
 
    return (<Page>
       <Header showLogo={true} student={student} />
@@ -88,10 +90,10 @@ export function Profile() {
          <View style={{ flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-evenly', flex: 1, borderTopWidth: 1, borderTopColor: 'rgba(0,0,0,.1)', width: '90%' }}>
          
             <Text style={{ color: theme.colors.secondary, marginBottom: -10, fontWeight: 'bold', fontSize: 18, textAlign: 'center', width: '100%',paddingVertical: 12 }}>MILA ID</Text>
-            <Text style={{ textAlign: 'center', width: '100%',paddingVertical: 12 }}>Scan this code at the locations that requires your MILA ID.</Text>
+            {/* <Text style={{ textAlign: 'center', width: '100%',paddingVertical: 12, paddingHorizontal: 26 }}>Scan this code at the locations that require your MILA ID.</Text> */}
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%',paddingVertical: 12}}>
                <QRCode
-                  value={`https://form.jotform.com/222696636785069?milaId=${student.registrationNumber}-${student.name}`}
+                  value={`${Buffer.from(student.registrationNumber+"-"+student.registration, 'utf-8').toString('base64')}`}
                   logo={logoFromFile}
                   logoSize={30}
                   size={160}
@@ -108,7 +110,7 @@ export function Profile() {
       </ScrollView>
       
       { openBirthdayModal ?
-         <Birthday setOpenBirthdayModal={setOpenBirthdayModal} />
+         <Birthday setOpenBirthdayModal={setOpenBirthdayModal} student={student} />
          : null }
 
       {showEnrollment ?

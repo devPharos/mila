@@ -1,10 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity, FlatList, Modal, StyleSheet, Pressable } from 'react-native';
 import Header from '../../components/Header';
 import { useRegister } from '../../hooks/register';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { format } from 'date-fns';
-// import { Profilepic } from '../Profile/styles';
 
 import { Page } from './styles';
 import Promo from './Promo';
@@ -15,8 +14,6 @@ export default function Groupchat({ navigation }) {
   const { student } = useRegister();
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedCoupon, setSelectedCoupon] = useState(null);
-
-  const [vItems, setVItems] = useState([])
 
   const listOfIcons = [
     {
@@ -54,7 +51,7 @@ export default function Groupchat({ navigation }) {
       id: 1,
       tag: "food-fork-drink",
       name: "Orlando's Pizza Hut",
-      logo: "https://instagram.fcgh10-1.fna.fbcdn.net/v/t51.2885-19/347259924_933266831152994_5699613767729946409_n.jpg?stp=dst-jpg_s150x150&_nc_ht=instagram.fcgh10-1.fna.fbcdn.net&_nc_cat=1&_nc_ohc=4RE2nUR96V4AX8RNTym&edm=ACWDqb8BAAAA&ccb=7-5&oh=00_AfClb8TUVFZ6XCyc8eNv069ai156A4EbJgbU-MwpRAlfFQ&oe=64B7D38D&_nc_sid=ee9879",
+      logo: "https://gkpb.com.br/wp-content/uploads/2014/11/novo-logo-pizza-hut-flat-design-destaque-geek-publicitario-696x473.jpg.webp",
       text: "For every $1 you spend on food and drinks you'll earn 2 points.",
       untilDate: new Date('2023-12-31')
     },
@@ -70,7 +67,7 @@ export default function Groupchat({ navigation }) {
       id: 3,
       tag: "party-popper",
       name: "Orlando's Pizza Hut",
-      logo: "https://instagram.fcgh10-1.fna.fbcdn.net/v/t51.2885-19/347259924_933266831152994_5699613767729946409_n.jpg?stp=dst-jpg_s150x150&_nc_ht=instagram.fcgh10-1.fna.fbcdn.net&_nc_cat=1&_nc_ohc=4RE2nUR96V4AX8RNTym&edm=ACWDqb8BAAAA&ccb=7-5&oh=00_AfClb8TUVFZ6XCyc8eNv069ai156A4EbJgbU-MwpRAlfFQ&oe=64B7D38D&_nc_sid=ee9879",
+      logo: "https://gkpb.com.br/wp-content/uploads/2014/11/novo-logo-pizza-hut-flat-design-destaque-geek-publicitario-696x473.jpg.webp",
       text: "For every $1 you spend on food and drinks you'll earn 2 points.",
       untilDate: new Date('2023-12-31')
     },
@@ -79,21 +76,24 @@ export default function Groupchat({ navigation }) {
       tag: "music",
       name: "Amazon Prime",
       logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6kgGbl1-EN4CW_8spHF_lOriJTlllmTiXBam6ViGSjrfbDVtBfS_WYbsbk_rDRpUMiTk&usqp=CAU",
-      text: "Enjoy prime day with 20%."
+      text: "Enjoy prime day with 20%.",
+      untilDate: new Date('2023-12-31')
     },
     {
       id: 5,
       tag: "table-tennis",
       name: "Orlando's Pizza Hut",
-      logo: "https://instagram.fcgh10-1.fna.fbcdn.net/v/t51.2885-19/347259924_933266831152994_5699613767729946409_n.jpg?stp=dst-jpg_s150x150&_nc_ht=instagram.fcgh10-1.fna.fbcdn.net&_nc_cat=1&_nc_ohc=4RE2nUR96V4AX8RNTym&edm=ACWDqb8BAAAA&ccb=7-5&oh=00_AfClb8TUVFZ6XCyc8eNv069ai156A4EbJgbU-MwpRAlfFQ&oe=64B7D38D&_nc_sid=ee9879",
-      text: "For every $1 you spend on food and drinks you'll earn 2 points."
+      logo: "https://gkpb.com.br/wp-content/uploads/2014/11/novo-logo-pizza-hut-flat-design-destaque-geek-publicitario-696x473.jpg.webp",
+      text: "For every $1 you spend on food and drinks you'll earn 2 points.",
+      untilDate: new Date('2023-12-31')
     },
     {
       id: 6,
       tag: "shopping",
       name: "Amazon Prime",
       logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6kgGbl1-EN4CW_8spHF_lOriJTlllmTiXBam6ViGSjrfbDVtBfS_WYbsbk_rDRpUMiTk&usqp=CAU",
-      text: "Enjoy prime day with 20%."
+      text: "Enjoy prime day with 20%.",
+      untilDate: new Date('2023-12-31')
     },
   ];
 

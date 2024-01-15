@@ -27,7 +27,7 @@ function RegisterProvider({ children }) {
     const defaultDashboard = { data: {}, fromDate: new Date() };
     const [student,setStudent] = useState(defaultStudent);
     const [dashboard, setDashboard] = useState(defaultDashboard);
-    const [params, setParams] = useState({ maxAbsenses: 0, access_orlando: true, access_miami: true, allowed_users: '' });
+    const [params, setParams] = useState({ maxAbsenses: 0, access_orlando: true, access_miami: true, allowed_users: '', limit_periods_to_students: 0, version_android: '', version_ios: '' });
 
     const [period,setPeriod] = useState(null);
     const [periods,setPeriods] = useState([]);
@@ -145,7 +145,7 @@ function RegisterProvider({ children }) {
             const month = today.getMonth();
             const year = today.getFullYear();
             const thisPeriod = year+"-"+(month+1).toString().padStart(2, '0');
-            const { data } = await api.get(`/students/dashboard/${userFB.registration}/${thisPeriod}/`);
+            const { data } = await api.get(`/students/dashboard/${userFB.registration}`);
 
             setDashboard({...dashboard, ...data.data, fromDate: new Date()});
             data.data.periods.map(p => {
@@ -196,12 +196,12 @@ async function logIn(form, setLoginError, loginError, setLoading) {
 
             if(!params.allowed_users.includes(form.registrationNumber.trim())) {
                 if(form.registrationNumber && form.registrationNumber.substring(0,3) === 'ORL' && params.access_orlando === false) {
-                    Alert.alert("Attention!","Orlando access is not yet avaiable.")
+                    Alert.alert("Attention!","Orlando access is not yet available.")
                     return
                 }
             
                 if(form.registrationNumber && form.registrationNumber.substring(0,3) === 'MIA' && params.access_miami === false) {
-                    Alert.alert("Attention!","Miami access is not yet avaiable.")
+                    Alert.alert("Attention!","Miami access is not yet available.")
                     return
                 }
             }
@@ -227,7 +227,7 @@ async function logIn(form, setLoginError, loginError, setLoading) {
 
 function forgotPW(form, setLoginError, loginError, setLoading, setRecoverySent) {
     auth()
-    .sendPasswordResetEmail(form.email)
+    .sendPasswordResetEmail(form.email.toLowerCase())
     .then(() => {
         setLoading(false)
         setRecoverySent(true);
@@ -249,9 +249,9 @@ async function findUserByEmailAndStudentCode(account, navigation) {
         .then(documentSnapshot => {
             if(documentSnapshot.exists) {
                 const { email } = documentSnapshot.data()
-                if(email === account.email) {
+                if(email === account.email.toLowerCase()) {
                     Alert.alert("Attention!","Email already in use. Try to log in instead.")
-                    navigation.navigate('Login', { existRegistrationNumber: account.registrationNumber, existEmail: account.email });
+                    navigation.navigate('Login', { existRegistrationNumber: account.registrationNumber.toUpperCase(), existEmail: account.email.toLowerCase() });
                     return;
                 }
                 Alert.alert("Attention!","Wrong Email.")
@@ -264,16 +264,16 @@ async function findUserByEmailAndStudentCode(account, navigation) {
 
 function createUserWithEmailAndPassword(account,navigation) {
     auth()
-        .createUserWithEmailAndPassword(account.email,account.pass)
+        .createUserWithEmailAndPassword(account.email.toLowerCase(),account.pass)
         .then(() => {
             firestore()
                 .collection('Students')
-                .doc(account.registrationNumber)
+                .doc(account.registrationNumber.toUpperCase())
                 .set({
                     type: 'Student',
-                    email: account.email,
+                    email: account.email.toLowerCase(),
                     registration: account.registration,
-                    registrationNumber: account.registrationNumber,
+                    registrationNumber: account.registrationNumber.toUpperCase(),
                     imageUrl: null,
                     name: null,
                     level: null,
@@ -288,7 +288,7 @@ function createUserWithEmailAndPassword(account,navigation) {
         .catch(error => {
             if (error.code === 'auth/email-already-in-use') {
                 Alert.alert("Attention!","E-mail already in use. Try to log in instead.")
-                navigation.navigate('Login', { existRegistrationNumber: account.registrationNumber, existEmail: account.email });
+                navigation.navigate('Login', { existRegistrationNumber: account.registrationNumber.toUpperCase(), existEmail: account.email.toLowerCase() });
                 return;
             }
 

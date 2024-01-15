@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import Animated, { useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, subMonths } from 'date-fns';
 import theme from '../../../global/styles/theme';
 import { Feather } from '@expo/vector-icons';
 
@@ -9,7 +9,7 @@ import { ClassReportTitle } from './styles';
 import { RegisterContext } from '../../../hooks/register';
 
 const ClassReportHeader = ({ setLoading }) => {
-    const { period, periodDates, periodDate, setPeriodDate } = useContext(RegisterContext);
+    const { period, periodDates, periodDate, setPeriodDate, params } = useContext(RegisterContext);
     const [showPeriodOptions, setShowPeriodOptions] = useState(false);
 
     const animatedStyle = useAnimatedStyle(() => {
@@ -41,24 +41,29 @@ const ClassReportHeader = ({ setLoading }) => {
             <View style={{ flex: 1 }}></View>
 
             {/* Desativado conforme solicitado pelo Daniel */}
-            <TouchableOpacity disabled={true} onPress={ () => setShowPeriodOptions(!showPeriodOptions) } style={{ backgroundColor: '#fff',width: 165, height: 44, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly'}}>
+            <TouchableOpacity disabled={params.limit_periods_to_students < 1} onPress={ () => setShowPeriodOptions(!showPeriodOptions) } style={{ backgroundColor: '#fff',width: 165, height: 44, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly'}}>
                 <Text style={{color: theme.colors.secondary}}>
                     {format(parseISO(periodDate), "MMMM, Y")}
                 </Text>
-                {/* <Feather style={{ color: theme.colors.secondary, fontSize: 22}} name={`${showPeriodOptions ? 'chevron-up' : 'chevron-down'}`} /> */}
+                { params.limit_periods_to_students > 0 ?
+                <Feather style={{ color: theme.colors.secondary, fontSize: 22}} name={`${showPeriodOptions ? 'chevron-up' : 'chevron-down'}`} />
+                : null }
             </TouchableOpacity>
             
         </ClassReportTitle>
 
         <Animated.View style={[animatedStyle,styles.container]}>
             <View style={{ paddingVertical: 16 }}>
-            { periodDates.map((periodItem,index) => (
-                <View key={index} style={{ width: '100%',borderBottomWidth: 1, borderBottomColor: '#efefef' }}>
-                    <TouchableOpacity onPress={ () => handlePeriodChange(periodItem) } style={{ width: '100%',paddingVertical: 16}}>
-                        <Text style={{ fontSize: 16, color: theme.colors.secondary, textAlign: 'center' }}>{format(parseISO(periodItem), "MMMM, Y")}</Text>
-                    </TouchableOpacity>
-                </View>
-            ) )}
+            { 
+            periodDates.map((periodItem,index) => {
+                if(periodItem <= format(new Date(), "Y-MM") && periodItem >= format(subMonths(new Date(),params.limit_periods_to_students), "Y-MM")) {
+                    return <View key={index} style={{ width: '100%',borderBottomWidth: 1, borderBottomColor: '#efefef' }}>
+                        <TouchableOpacity onPress={ () => handlePeriodChange(periodItem) } style={{ width: '100%',paddingVertical: 16}}>
+                            <Text style={{ fontSize: 16, color: theme.colors.secondary, textAlign: 'center' }}>{format(parseISO(periodItem), "MMMM, Y")}</Text>
+                        </TouchableOpacity>
+                    </View>
+                }
+            } )}
             </View>
         </Animated.View>
         </>

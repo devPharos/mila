@@ -28,7 +28,7 @@ export function Login({ route, navigation }) {
     const account = useRegister();
     const [loading,setLoading] = useState(false);
     const [loginError,setLoginError] = useState({ pass: false, registrationNumber: false, email: false});
-    const [params, setParams] = useState({access_orlando: true, access_miami: true, allowed_users: '' })
+    const [params, setParams] = useState({access_orlando: true, access_miami: true, allowed_users: '', version_android: '', version_ios: '' })
     let defaultAccountvalues = { email: '', registrationNumber: '', pass: '' }
 
     if(route.params) {
@@ -58,13 +58,13 @@ export function Login({ route, navigation }) {
 
         if(!params.allowed_users.includes(form.registrationNumber.trim())) {
             if(form.registrationNumber.substring(0,3) === 'ORL' && params.access_orlando === false) {
-                Alert.alert("Attention!","Orlando access is not yet avaiable.")
+                Alert.alert("Attention!","Orlando access is not yet available.")
                 setLoading(false)
                 return
             }
     
             if(form.registrationNumber.substring(0,3) === 'MIA' && params.access_miami === false) {
-                Alert.alert("Attention!","Miami access is not yet avaiable.")
+                Alert.alert("Attention!","Miami access is not yet available.")
                 setLoading(false)
                 return
             }
@@ -76,7 +76,7 @@ export function Login({ route, navigation }) {
             setLoading(false)
             logIn(form, setLoginError, loginError, setLoading);
         } catch(err) {
-            console.log(err)
+            // console.log(err)
             setLoading(false)
         }
         

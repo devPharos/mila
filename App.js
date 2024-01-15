@@ -44,15 +44,11 @@ export default function App() {
       <StatusBar backgroundColor="#fff" barStyle='dark-content' hidden={false} />
       <ThemeProvider theme={theme}>
           <RegisterProvider>
-            {/* <DashboardProvider> */}
               <NavigationContainer>
                 <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Home">
                 
                 { authenticated ? (
                   <Stack.Group>
-                  {/* <Stack.Screen name="Dashboard" component={Dashboard} />
-                  <Stack.Screen name="Profile" component={Profile} />
-                  <Stack.Screen name="Groupchat" component={Groupchat} /> */}
                     { authenticated ?
                     <Stack.Screen name="TabNavigation" component={TabNavigation} options={
                       {

@@ -6,7 +6,7 @@ import { RegisterContext, logOut } from '../../hooks/register';
 import ClassReport from '../../components/ClassReport';
 import Loading from '../../components/Loading';
 import { Entypo } from '@expo/vector-icons';
-import { isAfter, isBefore, parseISO } from 'date-fns';
+import { isAfter, isBefore, parseISO, subDays, addDays, format } from 'date-fns';
 // import * as Notifications from 'expo-notifications';
 
 // Notifications.setNotificationHandler({
@@ -63,12 +63,12 @@ export function Dashboard({ navigation }) {
       if(student.registrationNumber) {
          if(!params.allowed_users.includes(student.registrationNumber.trim())) {
             if(student.registrationNumber.substring(0,3) === 'ORL' && params.access_orlando === false) {
-                  Alert.alert("Attention!","Orlando access is not yet avaiable.")
+                  Alert.alert("Attention!","Orlando access is not yet available.")
                   logOut()
             }
          
             if(student.registrationNumber.substring(0,3) === 'MIA' && params.access_miami === false) {
-                  Alert.alert("Attention!","Miami access is not yet avaiable.")
+                  Alert.alert("Attention!","Miami access is not yet available.")
                   logOut()
             }
          }
@@ -93,10 +93,8 @@ export function Dashboard({ navigation }) {
                   if(p.groupID === g.groupID) {
                      if(parseInt(p.period.replace('-','')) === parseInt(periodDate.replace('-',''))) {
                         p.classes.forEach(pclass => {
-                           if(isAfter(parseISO(pclass.classDate),parseISO(g.studentStartDate)) && isBefore(parseISO(pclass.classDate),g.studentEndDate ? parseISO(g.studentEndDate) : parseISO(g.groupEndDate))) {
-                              // console.log('pclass',pclass)
+                           if(isAfter(parseISO(pclass.classDate),subDays(parseISO(g.studentStartDate),1)) && isBefore(parseISO(pclass.classDate),g.studentEndDate ? parseISO(g.studentEndDate) : parseISO(g.groupEndDate))) {
                               g.classes.push(pclass);
-                              // g.totalAbsences = p.totalAbsences || 0;
                            }
                         })
                      }
@@ -110,13 +108,9 @@ export function Dashboard({ navigation }) {
                      })
                   }
                })
-               // periodAbsences += parseInt(g.totalAbsences || 0)
                retGroups.push(g);
             }
          })
-         // retGroups.map(group => {
-         //    return group.periodAbsences = periodAbsences;
-         // })
          setGroup(retGroups);
          setInitializing(false);
       }
@@ -130,7 +124,7 @@ export function Dashboard({ navigation }) {
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <Main>
                      { initializing ? <Loading title="Loading..." /> :
-                        frequency[frequency.length - 1].percFrequency < params.maxAbsenses ?
+                        frequency[frequency.findIndex(freq => freq.period === format(new Date(),'Y-MM'))].percFrequency < params.maxAbsenses ?
                         <Container style={{ backgroundColor: "#FFF", 
                         width: '90%',
                         flexDirection: 'column',

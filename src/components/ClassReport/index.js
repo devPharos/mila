@@ -1,11 +1,11 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { TouchableOpacity, View, Text  } from 'react-native';
 import theme from '../../global/styles/theme';
 import { CircularProgressBase } from 'react-native-circular-progress-indicator';
 import Loading from '../../components/Loading';
 import ClassesList from '../ClassesList';
 import { Feather } from '@expo/vector-icons';
-import { logOut, RegisterContext, useRegister } from '../../hooks/register';
+import { logOut, RegisterContext } from '../../hooks/register';
 
 import { Container, Canvas } from './styles';
 import ClassReportHeader from './ClassReportHeader';
@@ -13,14 +13,23 @@ import { format, parseISO } from 'date-fns';
 import { capitalizeFirstLetter } from '../../global/functions/dashboard';
 
 const ClassReport = () => {
-    const { group, frequency } = useContext(RegisterContext);
+    const { group, frequency, period } = useContext(RegisterContext);
     const [loading,setLoading] = useState(false);
+    const [currentFrequency, setCurrentFrequency] = useState(frequency[frequency.length - 1])
     const props = {
         activeStrokeWidth: 10,
         inActiveStrokeWidth: 10,
         inActiveStrokeOpacity: 0.05
     };
 
+    useEffect(() => {
+        function load() {
+            setCurrentFrequency(frequency[frequency.findIndex(freq => freq.period == period.period)])
+        }
+        if(currentFrequency.period !== period.period) {
+            load()
+        }
+    },[period])
 
   return (
     <>
@@ -36,13 +45,13 @@ const ClassReport = () => {
                             <View  style={{ width: '100%', height: 50, backgroundColor: '#fff', borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <Text style={{ color: theme.colors.secondary, fontWeight: 'bold', fontSize: 14}}>Period Total Absences</Text>
                                 <View style={{ backgroundColor: "#efefef", width: 60, height: 35, borderRadius: 15, alignItems: 'center',justifyContent: 'center'}}>
-                                    <Text style={{ color: '#222', fontSize: 14}}>{frequency[frequency.length - 1].totalAbsences || 0}</Text>
+                                    <Text style={{ color: '#222', fontSize: 14}}>{currentFrequency.totalAbsences || 0}</Text>
                                 </View>
                             </View>
                             <View  style={{ width: '100%', height: 50, marginTop: 6, backgroundColor: '#fff', borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <Text style={{ color: theme.colors.secondary, fontWeight: 'bold', fontSize: 14}}>Period Frequency</Text>
                                 <View style={{ backgroundColor: "#efefef", width: 60, height: 35, borderRadius: 15, alignItems: 'center',justifyContent: 'center'}}>
-                                    <Text style={{ color: '#222', fontSize: 14}}>{frequency[frequency.length - 1].percFrequency || 0} %</Text>
+                                    <Text style={{ color: '#222', fontSize: 14}}>{currentFrequency.percFrequency || 0} %</Text>
                                 </View>
                             </View>
                         </Container>
