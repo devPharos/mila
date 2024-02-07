@@ -76,7 +76,7 @@ export function Profile() {
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center'}}>
                <FontAwesome5 name="school" color="#222" size={16} />
-               <Text>   {student.registrationNumber.substring(0,3) === 'ORL' ? 'Orlando' : student.registrationNumber.substring(0,3) === 'MIA' ? 'Miami' : ''}</Text>
+               <Text>   {student.registrationNumber.substring(0,3) === 'ORL' ? 'Orlando' : student.registrationNumber.substring(0,3) === 'MIA' ? 'Miami' : student.registrationNumber.substring(0,3) === 'BOC' ? 'Boca Raton' : ''}</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center'}}>
                <FontAwesome5 name="medal" color="#222" size={16} />

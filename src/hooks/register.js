@@ -27,7 +27,7 @@ function RegisterProvider({ children }) {
     const defaultDashboard = { data: {}, fromDate: new Date() };
     const [student,setStudent] = useState(defaultStudent);
     const [dashboard, setDashboard] = useState(defaultDashboard);
-    const [params, setParams] = useState({ maxAbsenses: 0, access_orlando: true, access_miami: true, allowed_users: '', limit_periods_to_students: 0, version_android: '', version_ios: '' });
+    const [params, setParams] = useState({ maxAbsenses: 0, access_orlando: true, access_miami: true, access_boca: true, allowed_users: '', limit_periods_to_students: 0, version_android: '', version_ios: '' });
 
     const [period,setPeriod] = useState(null);
     const [periods,setPeriods] = useState([]);
@@ -202,6 +202,11 @@ async function logIn(form, setLoginError, loginError, setLoading) {
             
                 if(form.registrationNumber && form.registrationNumber.substring(0,3) === 'MIA' && params.access_miami === false) {
                     Alert.alert("Attention!","Miami access is not yet available.")
+                    return
+                }
+            
+                if(form.registrationNumber && form.registrationNumber.substring(0,3) === 'BOC' && params.access_boca === false) {
+                    Alert.alert("Attention!","Boca Raton access is not yet available.")
                     return
                 }
             }

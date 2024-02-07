@@ -71,9 +71,14 @@ export function Dashboard({ navigation }) {
                   Alert.alert("Attention!","Miami access is not yet available.")
                   logOut()
             }
+         
+            if(student.registrationNumber.substring(0,3) === 'BOC' && params.access_boca === false) {
+                  Alert.alert("Attention!","Boca Raton access is not yet available.")
+                  logOut()
+            }
          }
       }
-   },[params.allowed_users, params.access_orlando, params.access_miami, student.registrationNumber])
+   },[params.allowed_users, params.access_orlando, params.access_miami, params.access_boca, student.registrationNumber])
 
    useEffect(() => {
       if(periodDate) {
@@ -145,6 +150,12 @@ export function Dashboard({ navigation }) {
                               <TouchableOpacity style={{ textAlign: 'left', width: '100%' }} onPress={() => Linking.openURL(`mailto:${params.contact_mia}?subject=Student Dashboard`)}>
                                  <Text style={{ fontWeight: 'bold' }}>
                                     <Entypo name="info-with-circle" /> {params.contact_mia}
+                                 </Text>
+                              </TouchableOpacity>
+                           : student.registrationNumber.substring(0,3) === 'BOC' ? 
+                              <TouchableOpacity style={{ textAlign: 'left', width: '100%' }} onPress={() => Linking.openURL(`mailto:${params.contact_boc}?subject=Student Dashboard`)}>
+                                 <Text style={{ fontWeight: 'bold' }}>
+                                    <Entypo name="info-with-circle" /> {params.contact_boc}
                                  </Text>
                               </TouchableOpacity>
                            : 
