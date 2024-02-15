@@ -45,7 +45,7 @@ export function Profile() {
     },[student])
 
    return (<Page>
-      <Header showLogo={true} student={student} />
+      <Header showLogo={true} />
       
       <ScrollView>
          <Main>
@@ -66,27 +66,28 @@ export function Profile() {
          </TouchableOpacity>
          <Text style={{ fontWeight: 'bold',color: theme.colors.secondary, paddingTop: 32, fontSize: 18 }}>{student.name} {student.lastName}</Text>
          <View style={{ flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-evenly', height: 180,paddingVertical: 12 }}>
-            <View style={{ flexDirection: 'row'}}>
+            { student.registrationNumber && <View style={{ flexDirection: 'row'}}>
                <Text style={{ fontWeight: 'bold' }}>Student ID: </Text>
                <Text>{student.registrationNumber}</Text>
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center'}}>
+            </View>}
+            { student.email && <View style={{ flexDirection: 'row', alignItems: 'center'}}>
                <FontAwesome name="envelope" color="#222" size={16} />
                <Text>   {student.email}</Text>
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center'}}>
+            </View>}
+            { student.registrationNumber && <View style={{ flexDirection: 'row', alignItems: 'center'}}>
                <FontAwesome5 name="school" color="#222" size={16} />
                <Text>   {student.registrationNumber.substring(0,3) === 'ORL' ? 'Orlando' : student.registrationNumber.substring(0,3) === 'MIA' ? 'Miami' : student.registrationNumber.substring(0,3) === 'BOC' ? 'Boca Raton' : ''}</Text>
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center'}}>
+            </View>}
+            { student.level && <View style={{ flexDirection: 'row', alignItems: 'center'}}>
                <FontAwesome5 name="medal" color="#222" size={16} />
                <Text>   {student.level.toUpperCase()}</Text>
-            </View>
+            </View>}
             <View style={{ flexDirection: 'row', alignItems: 'center'}}>
                <FontAwesome5 name="medal" color="#222" size={16} />
                <Text>   Valid Thru: Dec, {new Date().getFullYear()} </Text>
             </View>
          </View>
+         { student.registrationNumber && student.registration && 
          <View style={{ flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-evenly', flex: 1, borderTopWidth: 1, borderTopColor: 'rgba(0,0,0,.1)', width: '90%' }}>
          
             <Text style={{ color: theme.colors.secondary, marginBottom: -10, fontWeight: 'bold', fontSize: 18, textAlign: 'center', width: '100%',paddingVertical: 12 }}>MILA ID</Text>
@@ -100,7 +101,7 @@ export function Profile() {
                   logoBackgroundColor="#FFF"
                />
             </View>
-         </View>
+         </View>}
          {/* <TouchableOpacity style={theme.buttons.secondaryButton} onPress={() => setShowEnrollment(true)}>
             <BtnText>📃 Enrollment Letter</BtnText>
          </TouchableOpacity> */}

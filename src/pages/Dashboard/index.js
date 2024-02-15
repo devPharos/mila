@@ -84,7 +84,6 @@ export function Dashboard({ navigation }) {
       if(periodDate) {
          setInitializing(true);
          const retGroups = []
-         let periodAbsences = 0;
          groups.forEach(g => {
             if(typeof g.otherClasses === 'undefined') {
                g.otherClasses = [];
@@ -120,9 +119,10 @@ export function Dashboard({ navigation }) {
          setInitializing(false);
       }
    },[periodDate])
+
     return (
     <Page>
-      <Header showLogo={true} />
+      <Header showLogo={true} navigation={navigation} />
         <ScrollView>
         {/* <Birthday /> */}
             <Container>
@@ -140,19 +140,19 @@ export function Dashboard({ navigation }) {
                            <Text style={{ textAlign: 'left', width: '100%' }}>Dear student,</Text>
 
                            <Text style={{ textAlign: 'left', width: '100%', marginTop: 32, marginBottom: 8 }}>Please send an e-mail to</Text>
-                           { student.registrationNumber.substring(0,3) === 'ORL' ?
+                           { student.registrationNumber && student.registrationNumber.substring(0,3) === 'ORL' ?
                               <TouchableOpacity style={{ textAlign: 'left', width: '100%' }} onPress={() => Linking.openURL(`mailto:${params.contact_orl}?subject=Student Dashboard`)}>
                                  <Text style={{ fontWeight: 'bold' }}>
                                     <Entypo name="info-with-circle" /> {params.contact_orl}
                                  </Text>
                               </TouchableOpacity>
-                           : student.registrationNumber.substring(0,3) === 'MIA' ? 
+                           : student.registrationNumber && student.registrationNumber.substring(0,3) === 'MIA' ? 
                               <TouchableOpacity style={{ textAlign: 'left', width: '100%' }} onPress={() => Linking.openURL(`mailto:${params.contact_mia}?subject=Student Dashboard`)}>
                                  <Text style={{ fontWeight: 'bold' }}>
                                     <Entypo name="info-with-circle" /> {params.contact_mia}
                                  </Text>
                               </TouchableOpacity>
-                           : student.registrationNumber.substring(0,3) === 'BOC' ? 
+                           : student.registrationNumber && student.registrationNumber.substring(0,3) === 'BOC' ? 
                               <TouchableOpacity style={{ textAlign: 'left', width: '100%' }} onPress={() => Linking.openURL(`mailto:${params.contact_boc}?subject=Student Dashboard`)}>
                                  <Text style={{ fontWeight: 'bold' }}>
                                     <Entypo name="info-with-circle" /> {params.contact_boc}

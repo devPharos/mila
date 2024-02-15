@@ -1,6 +1,6 @@
 import { parseISO, format } from "date-fns";
-import React, { useState } from "react";
-import { Alert, Modal, StyleSheet, Text, Pressable, View } from "react-native";
+import React from "react";
+import { Modal, StyleSheet, Text, Pressable, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { capitalizeFirstLetter } from "../../global/functions/dashboard";
 import theme from "../../global/styles/theme";

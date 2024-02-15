@@ -1,10 +1,10 @@
 import React, { useRef } from 'react';
-import { Image, StyleSheet, Text, View, Modal, Alert, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import { Image, StyleSheet, Text, View, Modal, Alert, ScrollView, TouchableOpacity } from 'react-native';
 import theme from '../../global/styles/theme';
 import ViewShot from "react-native-view-shot";
 import { BtnText } from '../../pages/Profile/styles';
-import * as FileSystem from 'expo-file-system';
-import storage from '@react-native-firebase/storage';
+// import * as FileSystem from 'expo-file-system';
+// import storage from '@react-native-firebase/storage';
 
 
 // import RNImageToPdf from 'react-native-image-to-pdf';

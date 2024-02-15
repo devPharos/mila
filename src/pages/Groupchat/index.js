@@ -98,7 +98,7 @@ export default function Groupchat({ navigation }) {
   ];
 
   return <Page style={{ justifyContent: 'center', alignItems: 'center' }}>
-    <Header showLogo={true} student={student} />
+    <Header showLogo={true} navigation={navigation} />
     <View style={{ backgroundColor: theme.colors.secondary, width: '100%', paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
       <Text style={{ fontSize: 18, fontWeight: 'bold', color: "#FFF" }}>MILA Coupons</Text>
     </View>

@@ -1,10 +1,10 @@
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import theme from '../../global/styles/theme';
 import { useRegister } from '../../hooks/register';
 import { HeaderContainer } from './styles';
 
-export default function Header({ showLogo }) {
+export default function Header({ showLogo, navigation }) {
   const { student } = useRegister();
   return (
     <>
@@ -12,12 +12,14 @@ export default function Header({ showLogo }) {
     <HeaderContainer>
         <Image style={styles.logo} source={require('../../global/images/logo_small.png')} />
         
-        <View style={{ flex: 1,flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingRight: 32 }}>
+        <View style={{ flex: 1,flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingRight: 22 }}>
           {student && student.name ?
-          <>
-            <Text>Hello, </Text>
-            <Text style={{ fontWeight: 'bold', color: theme.colors.secondary }}>{student.name}</Text>
-          </>
+          <TouchableOpacity onPress={() => navigation && navigation.navigate('Profile')} style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', padding: 10 }}>
+            <>
+              <Text>Hello, </Text>
+              <Text style={{ fontWeight: 'bold', color: theme.colors.secondary }}>{student.name}</Text>
+            </>
+          </TouchableOpacity>
           : null }
         </View>
     </HeaderContainer>

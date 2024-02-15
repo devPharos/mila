@@ -57,19 +57,19 @@ export function Login({ route, navigation }) {
         setLoginError({ pass: false, email: false, registrationNumber: false });
 
         if(!params.allowed_users.includes(form.registrationNumber.trim())) {
-            if(form.registrationNumber.substring(0,3) === 'ORL' && params.access_orlando === false) {
+            if(form.registrationNumber && form.registrationNumber.substring(0,3) === 'ORL' && params.access_orlando === false) {
                 Alert.alert("Attention!","Orlando access is not yet available.")
                 setLoading(false)
                 return
             }
     
-            if(form.registrationNumber.substring(0,3) === 'MIA' && params.access_miami === false) {
+            if(form.registrationNumber && form.registrationNumber.substring(0,3) === 'MIA' && params.access_miami === false) {
                 Alert.alert("Attention!","Miami access is not yet available.")
                 setLoading(false)
                 return
             }
     
-            if(form.registrationNumber.substring(0,3) === 'BOC' && params.access_boca === false) {
+            if(form.registrationNumber && form.registrationNumber.substring(0,3) === 'BOC' && params.access_boca === false) {
                 Alert.alert("Attention!","Boca Raton access is not yet available.")
                 setLoading(false)
                 return

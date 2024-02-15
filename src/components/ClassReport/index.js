@@ -13,7 +13,7 @@ import { format, parseISO } from 'date-fns';
 import { capitalizeFirstLetter } from '../../global/functions/dashboard';
 
 const ClassReport = () => {
-    const { group, frequency, period } = useContext(RegisterContext);
+    const { group, frequency, periodDate } = useContext(RegisterContext);
     const [loading,setLoading] = useState(false);
     const [currentFrequency, setCurrentFrequency] = useState(frequency[frequency.length - 1])
     const props = {
@@ -24,12 +24,12 @@ const ClassReport = () => {
 
     useEffect(() => {
         function load() {
-            setCurrentFrequency(frequency[frequency.findIndex(freq => freq.period == period.period)])
+            setCurrentFrequency(frequency[frequency.findIndex(freq => freq.period == periodDate)])
         }
-        if(currentFrequency.period !== period.period) {
+        if(currentFrequency.period !== periodDate) {
             load()
         }
-    },[period])
+    },[periodDate])
 
   return (
     <>

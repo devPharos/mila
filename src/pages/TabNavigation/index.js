@@ -17,13 +17,13 @@ export default function TabNavigation() {
 
   useEffect(() => {
     if(params.version_android && !differentVersion) {
-      
+      console.log(appJson.expo.version,params.version_android)
       if(Platform.OS === 'android') {
-        if(appJson.expo.version !== params.version_android) {
+        if(appJson.expo.version < params.version_android) {
           setDifferentVersion({appVersion: appJson.expo.version, currentVersion: params.version_android, store: "https://play.google.com/store/apps/details?id=com.mila.studentdashboard" })
         }
       } else {
-        if(appJson.expo.version !== params.version_ios) {
+        if(appJson.expo.version < params.version_ios) {
           setDifferentVersion({appVersion: appJson.expo.version, currentVersion: params.version_ios, store: "https://apps.apple.com/br/app/student-dashboard/id6443608497" })
         }
       }
@@ -33,6 +33,10 @@ export default function TabNavigation() {
 
   if(differentVersion) {
     return <DifferentVersion data={differentVersion} />
+  }
+
+  if(!student.registrationNumber) {
+    return null;
   }
 
   return (
@@ -60,7 +64,7 @@ export default function TabNavigation() {
     <Tab.Screen name="Profile" component={Profile} options={{
           tabBarLabel: 'Profile',
           tabBarColor: 'rgb(0,255,0)',
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: () => (
           student.imageUrl ? 
             <Image source={{ uri: student.imageUrl }} style={{ width: 28, height: 28, borderRadius: 28 }} />
             : <Image source={require('../../global/images/no-pic.png')} style={{ width: 28, height: 28, borderRadius: 28 }} />
