@@ -80,7 +80,7 @@ export function Login({ route, navigation }) {
         try {
             await api.get(`/students/${form.registrationNumber}/${form.email}/`);
             setLoading(false)
-            logIn(form, setLoginError, loginError, setLoading);
+            logIn(form, setLoginError, loginError, setLoading, navigation);
         } catch(err) {
             // console.log(err)
             setLoading(false)
@@ -100,7 +100,9 @@ export function Login({ route, navigation }) {
                         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                             <>
                                 <Input control={control} defaultValue={account ? account.registrationNumber : null} autoCapitalize="characters" keyboardType="default" autoCorrect={false} placeholder="Registration Number" name="registrationNumber" error={errors.registrationNumber || loginError.registrationNumber} icon="fingerprint" iconColor={theme.colors.secondary} />
+                                {errors && errors.registrationNumber ? <Text style={{fontSize: 12,color: '#f00'}}>{errors.registrationNumber.message}</Text> : null}
                                 <Input control={control} defaultValue={account ? account.email : null} autoCapitalize="none" keyboardType="email-address" autoCorrect={false} placeholder="E-mail" name="email" error={errors.email || loginError.email} icon="email" iconColor={theme.colors.secondary} />
+                                {errors && errors.email ? <Text style={{fontSize: 12,color: '#f00'}}>{errors.email.message}</Text> : null}
                                 <Input control={control} keyboardType="default" placeholder="Password" secureTextEntry={true} autoCorrect={false} name="pass" error={errors.pass || loginError.pass} icon="key" iconColor={theme.colors.secondary} />
                             
                                 {loginError.email || loginError.registrationNumber ?

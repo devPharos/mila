@@ -9,6 +9,8 @@ import { useRegister } from '../../hooks/register';
 import { Image, Platform } from 'react-native';
 import appJson from '../../../app.json'
 import DifferentVersion from '../DifferentVersion';
+import ProfileDrawer from '../Profile/Drawer';
+import { AccessChanged } from '../AccessChanged';
 const Tab = createMaterialBottomTabNavigator();
 
 export default function TabNavigation() {
@@ -17,7 +19,6 @@ export default function TabNavigation() {
 
   useEffect(() => {
     if(params.version_android && !differentVersion) {
-      console.log(appJson.expo.version,params.version_android)
       if(Platform.OS === 'android') {
         if(appJson.expo.version < params.version_android) {
           setDifferentVersion({appVersion: appJson.expo.version, currentVersion: params.version_android, store: "https://play.google.com/store/apps/details?id=com.mila.studentdashboard" })
@@ -61,7 +62,7 @@ export default function TabNavigation() {
             <MaterialCommunityIcons name="view-dashboard-outline" color={color} size={22} />
           ),
         }} />
-    <Tab.Screen name="Profile" component={Profile} options={{
+    <Tab.Screen name="Profile" component={ProfileDrawer} options={{
           tabBarLabel: 'Profile',
           tabBarColor: 'rgb(0,255,0)',
           tabBarIcon: () => (

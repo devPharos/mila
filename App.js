@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from 'styled-components';
 import { Home } from './src/pages/Home';
@@ -7,7 +8,6 @@ import { FirstAccess } from './src/pages/FirstAccess';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaView, StatusBar, StyleSheet } from 'react-native';
-import 'react-native-gesture-handler';
 
 import { RegisterProvider } from './src/hooks/register';
 import auth from '@react-native-firebase/auth';
@@ -16,6 +16,7 @@ import { Login } from './src/pages/Login';
 import { Forgot } from './src/pages/Forgot';
 import { LastStep } from './src/pages/LastStep';
 import TabNavigation from './src/pages/TabNavigation';
+import { AccessChanged } from './src/pages/AccessChanged';
 
 const Stack = createNativeStackNavigator();
 
@@ -44,7 +45,7 @@ export default function App() {
       <StatusBar backgroundColor="#fff" barStyle='dark-content' hidden={false} />
       <ThemeProvider theme={theme}>
           <RegisterProvider>
-              <NavigationContainer>
+              <NavigationContainer id="MainNavigation">
                 <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Home">
                 
                 { authenticated ? (
@@ -60,6 +61,7 @@ export default function App() {
                     :
                     <Stack.Screen name="LastStep" component={LastStep} />
                     }
+                    <Stack.Screen name="AccessChanged" component={AccessChanged} />
                   </Stack.Group>
                 ):(
                   <Stack.Group>

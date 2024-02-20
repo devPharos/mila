@@ -15,6 +15,7 @@ function RegisterProvider({ children }) {
         registration: null, 
         pass: null, 
         pass_confirm: null, 
+        type: null,
         name: null, 
         level: null,
         imageUrl: null,
@@ -27,10 +28,12 @@ function RegisterProvider({ children }) {
     const defaultDashboard = { data: {}, fromDate: new Date() };
     const [student,setStudent] = useState(defaultStudent);
     const [dashboard, setDashboard] = useState(defaultDashboard);
-    const [params, setParams] = useState({ maxAbsenses: 0, access_orlando: true, access_miami: true, access_boca: true, allowed_users: '', limit_periods_to_students: 0, version_android: '', version_ios: '' });
+    const [params, setParams] = useState({ allow_class_excuses: 'ORL', maxAbsenses: 0, access_orlando: true, access_miami: true, access_boca: true, allowed_users: '', limit_periods_to_students: 0, version_android: '', version_ios: '' });
 
     const [period,setPeriod] = useState(null);
     const [periods,setPeriods] = useState([]);
+
+    const [blockedStudent, setBlockedStudent] = useState(false)
     
     const [periodDate,setPeriodDate] = useState(null);
     const [periodDates,setPeriodDates] = useState([]);
@@ -65,8 +68,17 @@ function RegisterProvider({ children }) {
                     querySnapshot.forEach(async documentSnapshot => {
                         const userFB = documentSnapshot.data()
                         await getStudentFromAPI(userFB);
+
+                        if(authenticated.email !== userFB.email) {
+                            await authenticated.updateEmail(userFB.email)
+                            Alert.alert("Attention!",`Your email has been changed to ${userFB.email.trim()}. Please use it in your next access.`)
+                        }
                         
-                        setStudent({ ...student, email: userFB.email, name: userFB.name, lastName: userFB.lastName, level: userFB.level, schedule: userFB.schedule, birthDate: userFB.birthDate, country: userFB.country, registration: userFB.registration, registrationNumber: userFB.registrationNumber, imageUrl: userFB.imageUrl, nsevis: userFB.nsevis})
+                        setStudent({ ...student, email: userFB.email, type: userFB.type, name: userFB.name, lastName: userFB.lastName, level: userFB.level, schedule: userFB.schedule, birthDate: userFB.birthDate, country: userFB.country, registration: userFB.registration, registrationNumber: userFB.registrationNumber, imageUrl: userFB.imageUrl, nsevis: userFB.nsevis})
+                        if(userFB.type !== 'Student') {
+                            setBlockedStudent(true)
+                            return
+                        }
                         await getDashboardData(userFB);
                     })
                 })
@@ -113,15 +125,17 @@ function RegisterProvider({ children }) {
                }
            }
 
-            if(userFB.nsevis !== data.data.nsevis || userFB.level !== capitalizeFirstLetter(data.data.currentGroup.level) || userFB.schedule !== capitalizeFirstLetter(data.data.currentGroup.schedule) || userFB.name !== capitalizeFirstLetter(data.data.name) || userFB.lastName !== lastName) {
+            if(userFB.type !== data.data.type || userFB.email !== data.data.email.toLowerCase() || userFB.country !== capitalizeFirstLetter(data.data.country) || userFB.nsevis !== data.data.nsevis || userFB.level !== capitalizeFirstLetter(data.data.currentGroup.level) || userFB.schedule !== capitalizeFirstLetter(data.data.currentGroup.schedule) || userFB.name !== capitalizeFirstLetter(data.data.name) || userFB.lastName !== lastName) {
                 await firestore().collection('Students').doc(userFB.registrationNumber).update({
                     name: capitalizeFirstLetter(data.data.name),
                     lastName,
                     level: capitalizeFirstLetter(data.data.currentGroup.level),
                     schedule: capitalizeFirstLetter(data.data.currentGroup.schedule),
                     birthDate: data.data.birthDate,
-                    country: data.data.country,
-                    nsevis: data.data.nsevis
+                    country: capitalizeFirstLetter(data.data.country),
+                    nsevis: data.data.nsevis,
+                    type: data.data.type,
+                    email: data.data.email.toLowerCase()
                 })
             }
            
@@ -172,7 +186,7 @@ function RegisterProvider({ children }) {
     }, []);
 
     return (
-        <RegisterContext.Provider value={{student, setStudent, dashboard, updateDashboard, profilePicChange, getStudentFromAPI, getDashboardData, period,setPeriod, periods,setPeriods, periodDate,setPeriodDate,group,setGroup, periodDates,setPeriodDates,groups,setGroups, frequency, setFrequency, params}} >
+        <RegisterContext.Provider value={{student, setStudent, blockedStudent, dashboard, updateDashboard, profilePicChange, getStudentFromAPI, getDashboardData, period,setPeriod, periods,setPeriods, periodDate,setPeriodDate,group,setGroup, periodDates,setPeriodDates,groups,setGroups, frequency, setFrequency, params}} >
             { children }
         </RegisterContext.Provider>
     )
@@ -183,7 +197,7 @@ function logOut() {
         .signOut()
 }
 
-async function logIn(form, setLoginError, loginError, setLoading) {
+async function logIn(form, setLoginError, loginError, setLoading, navigation) {
     let params = {}
     await firestore()
         .collection('Params')
@@ -215,7 +229,7 @@ async function logIn(form, setLoginError, loginError, setLoading) {
                 .signInWithEmailAndPassword(form.email, form.pass)
                 .then(() => {
                 })
-                .catch(error => {
+                .catch(async error => {
                     setLoading(false)
                     if(error.code === 'auth/wrong-password') {
                         setLoginError({ ...loginError, pass: true });
@@ -223,7 +237,21 @@ async function logIn(form, setLoginError, loginError, setLoading) {
                     }
                     if(error.code === 'auth/user-not-found') {
                         setLoginError({ ...loginError, email: true, registrationNumber: true });
-                        Alert.alert("Attention!","Registration Number or Email Address not found. Please check your invitation to confirm.");
+                        await firestore()
+                        .collection('Students')
+                        .doc(form.registrationNumber)
+                        .get()
+                        .then(documentSnapshot => {
+                            if(documentSnapshot.exists) {
+                                const { email } = documentSnapshot.data()
+                                if(email.toLowerCase().trim() !== form.email.toLowerCase().trim()) {
+                                    Alert.alert("Attention!",`Another email is set to your account, please login once more using the email: ${email.toLowerCase()}`)
+                                    navigation.navigate('Login', { existRegistrationNumber: form.registrationNumber.toUpperCase(), existEmail: email.toLowerCase() });
+                                    return;
+                                }
+                            }
+                            Alert.alert("Attention!","Registration Number or Email Address not found. Please check your invitation to confirm.");
+                        });
                     }
                 });
         })
@@ -271,23 +299,7 @@ function createUserWithEmailAndPassword(account,navigation) {
     auth()
         .createUserWithEmailAndPassword(account.email.toLowerCase(),account.pass)
         .then(() => {
-            firestore()
-                .collection('Students')
-                .doc(account.registrationNumber.toUpperCase())
-                .set({
-                    type: 'Student',
-                    email: account.email.toLowerCase(),
-                    registration: account.registration,
-                    registrationNumber: account.registrationNumber.toUpperCase(),
-                    imageUrl: null,
-                    name: null,
-                    level: null,
-                    birthDate: null,
-                    country: null,
-                    createdAt: new Date()
-                })
-                .then(() => {
-                });
+            createUserAtFirebase(account)
             
         })
         .catch(error => {
@@ -306,10 +318,54 @@ function createUserWithEmailAndPassword(account,navigation) {
         });
 }
 
+async function createUserAtFirebase(account) {
+    try {
+        await firestore()
+        .collection('Students')
+        .doc(account.registrationNumber.toUpperCase())
+        .set({
+            ...account,
+            type: 'Student',
+            email: account.email.toLowerCase(),
+            registration: account.registration,
+            registrationNumber: account.registrationNumber.toUpperCase(),
+            imageUrl: account.imageUrl || null,
+            name: account.name || null,
+            lastName: account.lastName || null,
+            level: account.level || null,
+            birthDate: account.birthDate || null,
+            country: account.country || null,
+            nsevis: account.nsevis || null,
+            schedule: account.schedule || null,
+            createdAt: new Date()
+        }).then(() => {
+            console.log('Usuário criado')
+            return true
+        }).catch(() => {
+            console.log('Erro')
+            return false
+        })
+    } catch(err) {
+        console.log(err)
+    }
+}
+
+async function removeUser(account) {
+    await firestore()
+    .collection('Students')
+    .doc(account.registrationNumber.toUpperCase())
+    .delete()
+    .then(() => {
+      return true
+    }).catch(() => {
+        return false
+    });
+}
+
 function useRegister() {
     const context = useContext(RegisterContext);
 
     return context
 }
 
-export { RegisterProvider, useRegister, createUserWithEmailAndPassword, findUserByEmailAndStudentCode, logIn, logOut, forgotPW }
+export { RegisterProvider, useRegister, createUserWithEmailAndPassword, createUserAtFirebase, removeUser, findUserByEmailAndStudentCode, logIn, logOut, forgotPW }

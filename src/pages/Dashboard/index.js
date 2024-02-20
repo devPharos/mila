@@ -7,6 +7,8 @@ import ClassReport from '../../components/ClassReport';
 import Loading from '../../components/Loading';
 import { Entypo } from '@expo/vector-icons';
 import { isAfter, isBefore, parseISO, subDays, addDays, format } from 'date-fns';
+import theme from '../../global/styles/theme';
+import { BtnText } from '../Home/styles'
 // import * as Notifications from 'expo-notifications';
 
 // Notifications.setNotificationHandler({
@@ -57,7 +59,7 @@ import { isAfter, isBefore, parseISO, subDays, addDays, format } from 'date-fns'
 
 export function Dashboard({ navigation }) {
    const [initializing, setInitializing] = useState(true);
-   const { periods, periodDate, setGroup, groups, params, frequency, student } = useContext(RegisterContext);
+   const { periods, periodDate, setGroup, groups, params, frequency, student, blockedStudent } = useContext(RegisterContext);
 
    useEffect(() => {
       if(student.registrationNumber) {
@@ -81,7 +83,7 @@ export function Dashboard({ navigation }) {
    },[params.allowed_users, params.access_orlando, params.access_miami, params.access_boca, student.registrationNumber])
 
    useEffect(() => {
-      if(periodDate) {
+      if(!blockedStudent && periodDate) {
          setInitializing(true);
          const retGroups = []
          groups.forEach(g => {
@@ -118,6 +120,9 @@ export function Dashboard({ navigation }) {
          setGroup(retGroups);
          setInitializing(false);
       }
+      if(blockedStudent) {
+         setInitializing(false)
+      }
    },[periodDate])
 
     return (
@@ -129,6 +134,52 @@ export function Dashboard({ navigation }) {
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <Main>
                      { initializing ? <Loading title="Loading..." /> :
+                        blockedStudent ?
+                        <>
+                           <Container style={{ backgroundColor: "#FFF", 
+                           width: '90%',
+                           flexDirection: 'column',
+                           alignItems: 'center',
+                           justifyContent: 'space-between',
+                           padding: 32,
+                           borderRadius: 16 }}>
+                              <Text style={{ textAlign: 'left', width: '100%' }}>Dear student,</Text>
+
+                              <Text style={{ textAlign: 'left', width: '100%', marginTop: 32, marginBottom: 8 }}>Your status has been changed to ex-student. In case you need any information, please contact: </Text>
+                              { student.registrationNumber && student.registrationNumber.substring(0,3) === 'ORL' ?
+                                 <TouchableOpacity style={{ textAlign: 'left', width: '100%' }} onPress={() => Linking.openURL(`mailto:${params.contact_orl}?subject=Ex-student access`)}>
+                                    <Text style={{ fontWeight: 'bold' }}>
+                                       <Entypo name="info-with-circle" /> {params.contact_orl}
+                                    </Text>
+                                 </TouchableOpacity>
+                              : student.registrationNumber && student.registrationNumber.substring(0,3) === 'MIA' ? 
+                                 <TouchableOpacity style={{ textAlign: 'left', width: '100%' }} onPress={() => Linking.openURL(`mailto:${params.contact_mia}?subject=Ex-student access`)}>
+                                    <Text style={{ fontWeight: 'bold' }}>
+                                       <Entypo name="info-with-circle" /> {params.contact_mia}
+                                    </Text>
+                                 </TouchableOpacity>
+                              : student.registrationNumber && student.registrationNumber.substring(0,3) === 'BOC' ? 
+                                 <TouchableOpacity style={{ textAlign: 'left', width: '100%' }} onPress={() => Linking.openURL(`mailto:${params.contact_boc}?subject=Ex-student access`)}>
+                                    <Text style={{ fontWeight: 'bold' }}>
+                                       <Entypo name="info-with-circle" /> {params.contact_boc}
+                                    </Text>
+                                 </TouchableOpacity>
+                              : 
+                                 <TouchableOpacity style={{ textAlign: 'left', width: '100%' }} onPress={() => Linking.openURL(`mailto:${params.contact_orl}?subject=Student Dashboard`)}>
+                                    <Text style={{ fontWeight: 'bold' }}>
+                                       <Entypo name="info-with-circle" /> {params.contact_orl}
+                                    </Text>
+                                 </TouchableOpacity>
+                              }
+                              <Text style={{ textAlign: 'left', width: '100%' }}>MILA's Intelligence Team</Text>
+
+                           </Container>
+                           <TouchableOpacity style={[theme.buttons.secondaryButton,{flexDirection: 'column', height: 60}]} onPress={() => { navigation.push('AccessChanged')}}>
+                              <BtnText style={{ fontSize: 14 }}>I have been transfered to</BtnText>
+                              <BtnText style={{ fontSize: 14 }}>another MILA branch</BtnText>
+                           </TouchableOpacity>
+                           </>
+                        :
                         frequency[frequency.findIndex(freq => freq.period === format(new Date(),'Y-MM'))].percFrequency < params.maxAbsenses ?
                         <Container style={{ backgroundColor: "#FFF", 
                         width: '90%',
