@@ -13,9 +13,9 @@ export default function Header({ showLogo = false, navigation = null, drawer = n
     <HeaderContainer>
       <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', height: 60, paddingHorizontal: 8 }}>
         {drawer && <Entypo name='menu' size={24} onPress={() => navigation.toggleDrawer()} />}
-          <TouchableOpacity onPress={() => navigation.navigate('Dashboard')}>
+          {/* <TouchableOpacity onPress={() => navigation.navigate('Dashboard')}> */}
             <Image style={styles.logo} source={require('../../global/images/logo_small.png')} />
-          </TouchableOpacity>
+          {/* </TouchableOpacity> */}
         </View>
         
         <View style={{ flex: 1,flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingRight: 22 }}>

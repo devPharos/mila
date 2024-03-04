@@ -23,7 +23,8 @@ function RegisterProvider({ children }) {
         birthDate: null,
         country: null,
         currentGroup: null,
-        emailVerified: false
+        emailVerified: false,
+        medicalExcuses: []
     }
     const defaultDashboard = { data: {}, fromDate: new Date() };
     const [student,setStudent] = useState(defaultStudent);
@@ -74,7 +75,7 @@ function RegisterProvider({ children }) {
                             Alert.alert("Attention!",`Your email has been changed to ${userFB.email.trim()}. Please use it in your next access.`)
                         }
                         
-                        setStudent({ ...student, email: userFB.email, type: userFB.type, name: userFB.name, lastName: userFB.lastName, level: userFB.level, schedule: userFB.schedule, birthDate: userFB.birthDate, country: userFB.country, registration: userFB.registration, registrationNumber: userFB.registrationNumber, imageUrl: userFB.imageUrl, nsevis: userFB.nsevis})
+                        setStudent({ ...student, email: userFB.email, type: userFB.type, name: userFB.name, lastName: userFB.lastName, level: userFB.level, schedule: userFB.schedule, birthDate: userFB.birthDate, country: userFB.country, registration: userFB.registration, registrationNumber: userFB.registrationNumber, imageUrl: userFB.imageUrl, nsevis: userFB.nsevis, medicalExcuses: userFB.medicalExcuses})
                         if(userFB.type !== 'Student') {
                             setBlockedStudent(true)
                             return

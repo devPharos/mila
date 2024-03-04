@@ -4,6 +4,7 @@ import { useWindowDimensions } from 'react-native';
 import { Profile } from './index';
 import { ClassExcuses } from '../ClassExcuses';
 import { useRegister } from '../../hooks/register';
+import theme from '../../global/styles/theme';
 
 // import { Container } from './styles';
 
@@ -31,7 +32,10 @@ export default function ProfileDrawer({ navigation }) {
         drawerPosition: 'left',
         drawerType: dimensions.width >= 768 ? 'permanent' : 'front',
         swipeEnabled: false,
-        headerShown: false
+        headerShown: false,
+        drawerActiveBackgroundColor: theme.colors.secondary,
+        drawerActiveTintColor: '#FFF',
+        drawerInactiveTintColor: theme.colors.secondary
     }}>
         <Drawer.Screen name="ProfileDrawer" component={Profile} options={{ drawerLabel: 'Profile' }} />
         { params.allow_class_excuses.includes(student.registrationNumber.substring(0,3)) && <Drawer.Screen name="ClassExcusesDrawer" component={ClassExcuses} options={{ drawerLabel: 'Class Excuses' }} />}

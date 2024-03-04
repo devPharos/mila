@@ -8,10 +8,14 @@
     ],
     "android": {
       "googleServicesFile": "./google-services.json",
-      "package": "com.mila.studentdashboard"
+      "package": "com.mila.studentdashboard",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "ios": {
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "bundleIdentifier": "com.mila.studentdashboard"
     },
     "plugins": [
       "@react-native-firebase/app",
