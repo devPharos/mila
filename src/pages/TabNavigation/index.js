@@ -4,13 +4,12 @@ import { Dashboard } from '../Dashboard';
 import { Profile } from '../Profile';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import theme from '../../global/styles/theme';
-import Groupchat from '../Groupchat';
 import { useRegister } from '../../hooks/register';
 import { Image, Platform } from 'react-native';
 import appJson from '../../../app.json'
 import DifferentVersion from '../DifferentVersion';
-import ProfileDrawer from '../Profile/Drawer';
-import { AccessChanged } from '../AccessChanged';
+import DashboardDrawer from '../Dashboard/Drawer';
+import Partners from '../Partners';
 const Tab = createMaterialBottomTabNavigator();
 
 export default function TabNavigation() {
@@ -48,21 +47,21 @@ export default function TabNavigation() {
     shifting={false}
     backBehavior="initialRoute"
     barStyle={{ backgroundColor: '#fff' }}>
-      { student.registrationNumber === 'ORL000611' &&
-    <Tab.Screen name="Groupchat" component={Groupchat} options={{
-          tabBarLabel: 'Group Chat',
+      { params.allow_partners.includes(student.registrationNumber.substring(0,3)) &&
+    <Tab.Screen name="Partners" component={Partners} options={{
+          tabBarLabel: 'Partners',
           tabBarIcon: ({ color }) => (
             <Ionicons name="pricetags" color={color} size={22} />
           ),
         }} />
         }
-    <Tab.Screen name="Dashboard" component={Dashboard} options={{
+    <Tab.Screen name="Dashboard" component={DashboardDrawer} options={{
           tabBarLabel: 'Dashboard',
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="view-dashboard-outline" color={color} size={22} />
           ),
         }} />
-    <Tab.Screen name="Profile" component={ProfileDrawer} options={{
+    <Tab.Screen name="Profile" component={Profile} options={{
           tabBarLabel: 'Profile',
           tabBarColor: 'rgb(0,255,0)',
           tabBarIcon: () => (

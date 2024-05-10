@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { TouchableWithoutFeedback, Keyboard, ScrollView, Text, TouchableOpacity, Linking, Alert } from 'react-native';
 import Header from '../../components/Header';
 import { Page, Container, Main } from './styles';
-import { RegisterContext, logOut } from '../../hooks/register';
+import { RegisterContext } from '../../hooks/register';
 import ClassReport from '../../components/ClassReport';
 import Loading from '../../components/Loading';
 import { Entypo } from '@expo/vector-icons';
@@ -59,7 +59,7 @@ import { BtnText } from '../Home/styles'
 
 export function Dashboard({ navigation }) {
    const [initializing, setInitializing] = useState(true);
-   const { periods, periodDate, setGroup, groups, params, frequency, student, blockedStudent } = useContext(RegisterContext);
+   const { periods, periodDate, setGroup, groups, params, frequency, student, group, blockedStudent, logOut } = useContext(RegisterContext);
 
    useEffect(() => {
       if(student.registrationNumber) {
@@ -127,7 +127,7 @@ export function Dashboard({ navigation }) {
 
     return (
     <Page>
-      <Header showLogo={true} navigation={navigation} />
+      <Header showLogo={true} navigation={navigation} drawer={`${group ? 'Dashboard' : ''}`} />
         <ScrollView>
         {/* <Birthday /> */}
             <Container>
@@ -221,7 +221,7 @@ export function Dashboard({ navigation }) {
                            <Text style={{ textAlign: 'left', width: '100%' }}>MILA's Intelligence Team</Text>
                         </Container>
                         :
-                        <ClassReport />
+                        <ClassReport navigation={navigation} />
                      }
                     </Main>
                 </TouchableWithoutFeedback>

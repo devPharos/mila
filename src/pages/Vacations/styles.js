@@ -6,21 +6,27 @@ export const Page = styled.View`
     background: ${({ theme }) => theme.colors.background };
 `;
 
-export const Container = styled.View`
-    display: flex;
-    flex: 1;
+export const Main = styled.View`
+    background: #fff;
+    border-radius: 32px;
+    width: 90%;
+    margin-left: 5%;
+    margin-top: 140px;
     align-items: center;
-    justify-content: space-around;
+    justify-content: center;
+    margin-bottom: 32px;
+    padding-bottom: 32px;
     flex-direction: column;
 `;
 
-export const Main = styled.View`
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-around;
-    height: ${RFPercentage(88)}px;
+export const Profilepic = styled.View`
+    background: #FFF;
+    border:1px solid #efefef;
+    width: 200px;
+    height: 200px;
+    margin-top: -120px;
+    border-radius: 32px;
+
 `;
 
 export const BtnText = styled.Text`

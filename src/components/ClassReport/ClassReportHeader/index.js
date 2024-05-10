@@ -40,8 +40,7 @@ const ClassReportHeader = ({ setLoading }) => {
         <ClassReportTitle style={{ position: 'relative', justifyContent: 'space-between' }}>
             <View style={{ flex: 1 }}></View>
 
-            {/* Desativado conforme solicitado pelo Daniel */}
-            <TouchableOpacity disabled={params.limit_periods_to_students < 1} onPress={ () => setShowPeriodOptions(!showPeriodOptions) } style={{ backgroundColor: '#fff',width: 165, height: 44, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly'}}>
+            <TouchableOpacity disabled={params.limit_periods_to_students < 1} onPress={ () => setShowPeriodOptions(!showPeriodOptions) } style={{ backgroundColor: '#fff',width: 165, height: 44, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly',borderWidth: 1, borderStyle: 'dashed', borderColor: theme.colors.secondary}}>
                 <Text style={{color: theme.colors.secondary}}>
                     {format(parseISO(periodDate), "MMMM, Y")}
                 </Text>
@@ -58,7 +57,7 @@ const ClassReportHeader = ({ setLoading }) => {
             periodDates.map((periodItem,index) => {
                 if(periodItem <= format(new Date(), "Y-MM") && periodItem >= format(subMonths(new Date(),params.limit_periods_to_students), "Y-MM")) {
                     return <View key={index} style={{ width: '100%',borderBottomWidth: 1, borderBottomColor: '#efefef' }}>
-                        <TouchableOpacity onPress={ () => handlePeriodChange(periodItem) } style={{ width: '100%',paddingVertical: 16}}>
+                        <TouchableOpacity onPress={ () => handlePeriodChange(periodItem) } style={{ width: '100%',paddingVertical: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
                             <Text style={{ fontSize: 16, color: theme.colors.secondary, textAlign: 'center' }}>{format(parseISO(periodItem), "MMMM, Y")}</Text>
                         </TouchableOpacity>
                     </View>

@@ -24,12 +24,36 @@ function RegisterProvider({ children }) {
         country: null,
         currentGroup: null,
         emailVerified: false,
-        medicalExcuses: []
+        medicalExcuses: [],
+        vacations: []
+    }
+    
+    const defaultParams = {
+        access_boca: true, 
+        access_miami: true, 
+        access_orlando: true, 
+        allow_class_excuses: 'ORL', 
+        allow_vacations: 'ORL', 
+        allow_partners: 'ORL', 
+        allowed_users: '', 
+        contact_boc: 'dso@milabocausa.com',
+        contact_mia: 'dso@milamiamiusa.com',
+        contact_orl: 'dso@milaorlandousa.com',
+
+        jotform_api_key: '29033d6c15e1b4bbe6e8c26fb3042369',
+        jotform_medical_excuse_url_code: '233476310418049',
+        jotform_vacation_url_code: '240667036541152',
+        jotform_partners_url_code: '240026141878151',
+
+        limit_periods_to_students: 2, 
+        maxAbsenses: 0,
+        version_android: '', 
+        version_ios: '',
     }
     const defaultDashboard = { data: {}, fromDate: new Date() };
     const [student,setStudent] = useState(defaultStudent);
     const [dashboard, setDashboard] = useState(defaultDashboard);
-    const [params, setParams] = useState({ allow_class_excuses: 'ORL', maxAbsenses: 0, access_orlando: true, access_miami: true, access_boca: true, allowed_users: '', limit_periods_to_students: 0, version_android: '', version_ios: '' });
+    const [params, setParams] = useState(defaultParams);
 
     const [period,setPeriod] = useState(null);
     const [periods,setPeriods] = useState([]);
@@ -75,7 +99,7 @@ function RegisterProvider({ children }) {
                             Alert.alert("Attention!",`Your email has been changed to ${userFB.email.trim()}. Please use it in your next access.`)
                         }
                         
-                        setStudent({ ...student, email: userFB.email, type: userFB.type, name: userFB.name, lastName: userFB.lastName, level: userFB.level, schedule: userFB.schedule, birthDate: userFB.birthDate, country: userFB.country, registration: userFB.registration, registrationNumber: userFB.registrationNumber, imageUrl: userFB.imageUrl, nsevis: userFB.nsevis, medicalExcuses: userFB.medicalExcuses})
+                        setStudent({ ...student, email: userFB.email, type: userFB.type, name: userFB.name, lastName: userFB.lastName, level: userFB.level, schedule: userFB.schedule, birthDate: userFB.birthDate, country: userFB.country, registration: userFB.registration, registrationNumber: userFB.registrationNumber, imageUrl: userFB.imageUrl, nsevis: userFB.nsevis, medicalExcuses: userFB.medicalExcuses, vacations: userFB.vacations})
                         if(userFB.type !== 'Student') {
                             setBlockedStudent(true)
                             return
@@ -181,21 +205,22 @@ function RegisterProvider({ children }) {
         }
     }
 
+    function logOut() {
+        setStudent(defaultStudent)
+        auth()
+            .signOut()
+    }
+
     useEffect(() => {
         const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
         return subscriber; // unsubscribe on unmount
     }, []);
 
     return (
-        <RegisterContext.Provider value={{student, setStudent, blockedStudent, dashboard, updateDashboard, profilePicChange, getStudentFromAPI, getDashboardData, period,setPeriod, periods,setPeriods, periodDate,setPeriodDate,group,setGroup, periodDates,setPeriodDates,groups,setGroups, frequency, setFrequency, params}} >
+        <RegisterContext.Provider value={{ logOut, student, setStudent, blockedStudent, dashboard, updateDashboard, profilePicChange, getStudentFromAPI, getDashboardData, period,setPeriod, periods,setPeriods, periodDate,setPeriodDate,group,setGroup, periodDates,setPeriodDates,groups,setGroups, frequency, setFrequency, params}} >
             { children }
         </RegisterContext.Provider>
     )
-}
-
-function logOut() {
-    auth()
-        .signOut()
 }
 
 async function logIn(form, setLoginError, loginError, setLoading, navigation) {
@@ -369,4 +394,4 @@ function useRegister() {
     return context
 }
 
-export { RegisterProvider, useRegister, createUserWithEmailAndPassword, createUserAtFirebase, removeUser, findUserByEmailAndStudentCode, logIn, logOut, forgotPW }
+export { RegisterProvider, useRegister, createUserWithEmailAndPassword, createUserAtFirebase, removeUser, findUserByEmailAndStudentCode, logIn, forgotPW }

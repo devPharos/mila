@@ -4,20 +4,24 @@ import { FontAwesome, MaterialCommunityIcons, Entypo, Ionicons } from '@expo/vec
 
 import { Countainer } from './styles';
 import theme from '../../../global/styles/theme';
+import { useRegister } from '../../../hooks/register';
 
 export default function Promo({ promo = null, setSelectedCoupon = null}) {
+    const { params, student } = useRegister()
     if(!promo) {
         return null;
     }
-  return <Countainer>
+
+  return promo.fromFilials.includes(student.registrationNumber.substring(0,3)) && <Countainer>
     
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 6 }}>
-        <View style={{ width: 80, height: 80,overflow: 'hidden' }}>
-            <Image source={{ uri: promo.logo}}  style={{ width: 80, height: 80}} />
+        <View style={{ width: 80, height: 80, borderWidth: 1, borderColor: '#ccc', padding: 5, overflow: 'hidden', borderRadius: 8 }}>
+            <Image source={{ uri: promo.logo+`?apiKey=${params.jotform_api_key}`}}  style={{ width: 70, height: 70 }} />
         </View>
         <View style={{ flex: 1, flexDirection: 'column', paddingLeft: 6, justifyContent: 'flex-start' }}>
             <Text style={{ fontWeight: 'bold', fontSize: 13 }}>{promo.name}</Text>
-            <Text style={{ fontSize: 11, textAlign: 'justify' }}>{promo.text}</Text>
+            <Text style={{ fontSize: 13 }}>{promo && promo.address}</Text>
+            
         </View>
         </View>
         <View style={{ borderTopWidth: 1, borderStyle: 'dashed', borderColor: "#ccc", paddingTop: 12, marginTop: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingHorizontal: 12 }}>

@@ -43,7 +43,7 @@ export function Profile({ navigation }) {
 
    return (
       <Page>
-         <Header showLogo={true} navigation={navigation} drawer='Profile' />
+         <Header showLogo={true} navigation={navigation} />
          <ScrollView>
             <Main>
             

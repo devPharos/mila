@@ -96,7 +96,7 @@ export function Login({ route, navigation }) {
                 <Main>
                 <Logo />
                 <Container>
-                    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
+                    <KeyboardAvoidingView  behavior={Platform.OS === "ios" ? "padding" : "height"}>
                         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                             <>
                                 <Input control={control} defaultValue={account ? account.registrationNumber : null} autoCapitalize="characters" keyboardType="default" autoCorrect={false} placeholder="Registration Number" name="registrationNumber" error={errors.registrationNumber || loginError.registrationNumber} icon="fingerprint" iconColor={theme.colors.secondary} />

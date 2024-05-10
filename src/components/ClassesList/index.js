@@ -23,7 +23,7 @@ const ClassesList = ({ periodClasses, group }) => {
   return (
       <>
       <Container style={{ width: '100%', marginBottom: 48, marginTop: 8, height: showPeriodOptions ? 'auto' : 75, padding: 0  }}>
-          <TouchableOpacity onPress={ () => setShowPeriodOptions(!showPeriodOptions) } style={{ width: '100%', height: 75, marginBottom: 8, backgroundColor: '#fff', borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <TouchableOpacity onPress={ () => setShowPeriodOptions(!showPeriodOptions) } style={{ width: '100%', height: 75, marginBottom: 8, backgroundColor: '#fff', borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',borderWidth: 1, borderStyle: 'dashed', borderColor: theme.colors.secondary }}>
             <View>
               <Text style={{ fontSize: 16,color: theme.colors.secondary,fontWeight: 'bold' }}>{periodClasses.length} Classes</Text>
               <Text style={{ color: '#868686', fontSize: 12}}>{group.workload}</Text>

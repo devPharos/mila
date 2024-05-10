@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { TouchableOpacity, Text, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, View, Alert } from 'react-native';
 import theme from '../../global/styles/theme';
 import { useForm } from 'react-hook-form'
@@ -11,7 +11,7 @@ import RegistrationStatus from '../../components/RegistrationStatus';
 import Logo from '../../components/Logo';
 
 import { Page, Container, BtnText, Main } from './styles';
-import { useRegister, createUserAtFirebase, removeUser, logIn, logOut } from '../../hooks/register';
+import { useRegister, createUserAtFirebase, removeUser, RegisterContext } from '../../hooks/register';
 import api from '../../service/api';
 
 const schema = Yup.object().shape({
@@ -19,6 +19,7 @@ const schema = Yup.object().shape({
 })
 
 export function AccessChanged({ route, navigation }) {
+    const { logOut } = useContext(RegisterContext);
     const account = useRegister();
     const [loading,setLoading] = useState(false);
     const defaultLoginError = { registrationNumber: false, sameInfo: false }

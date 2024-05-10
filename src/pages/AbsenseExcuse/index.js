@@ -11,8 +11,9 @@ import axios from 'axios';
 import firestore from '@react-native-firebase/firestore';
 import theme from '../../global/styles/theme';
 
-export function ClassExcuses({ navigation }) {
-   const { student, setStudent } = useRegister();
+export function AbsenseExcuse({ navigation }) {
+   const { student, setStudent, params } = useRegister();
+   const [editForm, setEditForm] = useState(null)
    const webviewRef = useRef();
    const Stack = createNativeStackNavigator();
 
@@ -26,7 +27,7 @@ export function ClassExcuses({ navigation }) {
             const list = [];
             student.medicalExcuses.map(async (excuse) => {
                return list.push(
-                  axios.get(`https://api.jotform.com/submission/${excuse}?apikey=29033d6c15e1b4bbe6e8c26fb3042369&addWorkflowStatus=1`)
+                  axios.get(`https://api.jotform.com/submission/${excuse}?apikey=${params.jotform_api_key}&addWorkflowStatus=1`)
                   .then(({ data }) => {
                   const obj = data.content.answers;
                   const anwsers = Object.keys(obj).map((key) => [key, obj[key]]);
@@ -37,7 +38,7 @@ export function ClassExcuses({ navigation }) {
                   const dateToRet = anwsers.find((answer) => answer[1].name === 'endDate')[1].answer;
                   const dateTo = dateToRet.month+"/"+dateToRet.day+"/"+dateToRet.year;
                   const createdAt = data.content.created_at;
-                  const status = data.content.workflowStatus === 'ACTIVE' ? 'Pending...' : data.content.workflowStatus === 'Deny' ? 'Denied' : data.content.workflowStatus === 'More Information' ? 'More Information' : 'Approved';
+                  const status = data.content.workflowStatus === 'ACTIVE' ? 'Pending...' : data.content.workflowStatus === 'Deny' ? 'Denied' : data.content.workflowStatus === 'More Information' ? 'Add More Information' : 'Approved';
 
                   return {
                      id,
@@ -45,6 +46,7 @@ export function ClassExcuses({ navigation }) {
                      dateFrom,
                      dateTo,
                      status,
+                     submission_id: excuse
                    }
                }
             )
@@ -57,35 +59,41 @@ export function ClassExcuses({ navigation }) {
             })
          }
       },[loading])
+
+      function handleEditForm(item) {
+         setEditForm(item)
+         navigation.navigate("New Request")
+      }
+
       return (
          <>
          <TouchableOpacity onPress={() => setLoading(true)} style={{ width: '100%', backgroundColor: theme.colors.grayOpacity, flexDirection: 'row', height: 50, alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ color: theme.colors.gray, fontWeight: 'bold' }}><Ionicons name="refresh" size={16} color={theme.colors.gray} /> {loading ? 'Loading...' : 'Refresh information'}</Text>
          </TouchableOpacity>
       <FlatList data={medicalExcuses} renderItem={({item,index}) => (
-      <View style={{ width: '100%', backgroundColor: index % 2 === 0 ? '#FFF' : '#fcfcfc', paddingVertical: 8, paddingHorizontal: 16, borderBottomWidth: 1, borderColor: '#efefef', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+      <TouchableOpacity onPress={() => item.status === 'Add More Information' ? handleEditForm(item) : null} style={{ width: '100%', backgroundColor: index % 2 === 0 ? '#FFF' : '#fcfcfc', paddingVertical: 8, paddingHorizontal: 16, borderBottomWidth: 1, borderColor: '#efefef', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
          
          <View>
-            <Text style={{ fontWeight: 'bold'}}>{item.id}</Text>
+            <Text style={{ fontWeight: 'bold', color: theme.colors.secondary, fontSize: 16 }}>{item.id}</Text>
             
             {item.dateTo ? <>
-               <Text>From {item.dateFrom}</Text>
-               <Text>To {item.dateTo}</Text>
+               <Text><Text style={{ fontWeight: 'bold', fontSize: 13, width: '50%' }}>Start date:</Text> {item.dateFrom}</Text>
+               <Text><Text style={{ fontWeight: 'bold', fontSize: 13, width: '50%' }}>End date:</Text> {item.dateTo}</Text>
             </> :
-               <Text>To {item.dateFrom}</Text>
+               <Text><Text style={{ fontWeight: 'bold', fontSize: 13, width: '50%'}}>Date:</Text> {item.dateFrom}</Text>
             }
          </View>
-         <Text style={{ fontWeight: 'bold', color: item.status === 'Pending...' ? theme.colors.grayOpacity2 : item.status === 'More Information' ? theme.colors.Transfer : item.status === 'Denied' ? theme.colors.primaryOpacity : theme.colors.secondary }}>{item.status}</Text>
-      </View>
+         <Text style={{ fontWeight: 'bold', color: item.status === 'Pending...' ? theme.colors.grayOpacity2 : item.status === 'Add More Information' ? theme.colors.Transfer : item.status === 'Denied' ? theme.colors.primaryOpacity : theme.colors.secondary }}>{item.status}</Text>
+      </TouchableOpacity>
       )} />
       </>
       )
    }
 
    const NewForm = ({ navigation }) => {
-      navigation.setOptions({
-         headerRight: null
-       })
+      // navigation.setOptions({
+      //    headerRight: null
+      //  })
        const handleWebViewNavigationStateChange = async (newNavState) => {
          // newNavState looks something like this:
          // {
@@ -105,18 +113,22 @@ export function ClassExcuses({ navigation }) {
          }
    
          if(url.includes('https://submit.jotform.com/submit/')) {
-            const { data } = await axios.get(`https://api.jotform.com/form/233476310418049/submissions?apikey=29033d6c15e1b4bbe6e8c26fb3042369&addWorkflowStatus=1&filter={"workflowStatus":"ACTIVE"}&orderby=created_at&limit=1`)
-            data.content.map((newExcuses,index) => {
-               if(index === 0) {
-                  const newObjExcuses = student.medicalExcuses ? [...student.medicalExcuses, newExcuses.id] : [newExcuses.id];
-                  firestore().collection('Students').doc(student.registrationNumber).update({
-                     medicalExcuses: newObjExcuses
-                  }).then(() => {
-                     setStudent({...student, medicalExcuses: newObjExcuses })
-                     navigation.navigate("Medical Excuses")
-                  })
-               }
-            })
+            if(!editForm) {
+               const { data } = await axios.get(`https://api.jotform.com/form/${params.jotform_medical_excuse_url_code}/submissions?apikey=${params.jotform_api_key}&addWorkflowStatus=1&filter={"workflowStatus":"ACTIVE"}&orderby=created_at&limit=1`)
+               data.content.map((newExcuses,index) => {
+                  if(index === 0) {
+                     const newObjExcuses = student.medicalExcuses ? [...student.medicalExcuses, newExcuses.id] : [newExcuses.id];
+                     firestore().collection('Students').doc(student.registrationNumber).update({
+                        medicalExcuses: newObjExcuses
+                     }).then(() => {
+                        setStudent({...student, medicalExcuses: newObjExcuses })
+                        navigation.navigate("Class Excuses")
+                     })
+                  }
+               })
+            } else {
+               navigation.navigate("Class Excuses")
+            }
          }
    
          // handle certain doctypes
@@ -137,19 +149,26 @@ export function ClassExcuses({ navigation }) {
          }
       };
 
+      let formUri = '';
+      if(editForm) {
+         formUri = `https://jotform.com/edit/${editForm.submission_id}`;
+      } else {
+         formUri = `https://form.jotform.com/${params.jotform_medical_excuse_url_code}?studentid=${student.registrationNumber}&studentfull=${student.name} ${student.lastName}&studentemail=${student.email}`;
+      }
+
       return (
          <WebView
          style={{ flex: 1 }}
          ref={webviewRef}
          originWhitelist={['*']}
-         source={{ uri: `https://form.jotform.com/233476310418049?studentid=${student.registrationNumber}&studentfull=${student.name} ${student.lastName}&studentemail=${student.email}` }}
+         source={{ uri: formUri }}
          onNavigationStateChange={handleWebViewNavigationStateChange}
          />);
    }
 
    return <Page>
-      <Header showLogo={true} navigation={navigation} drawer='Class Excuses' />
-      <Stack.Navigator id="MedicalExcuses" initialRouteName="Medical Excuses" screenOptions={{ headerRight: () => (
+      <Header showLogo={true} navigation={navigation} drawer='Absense Excuse' />
+      <Stack.Navigator id="AbsenseExcuse" initialRouteName="Absense Excuse" screenOptions={{ headerRight: () => (
          <TouchableOpacity onPress={() => navigation.navigate('New Request')}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Text><Ionicons name="add-circle" size={24} color={theme.colors.secondary} /></Text>
@@ -157,7 +176,7 @@ export function ClassExcuses({ navigation }) {
             </View>
          </TouchableOpacity>)
          }} >
-         <Stack.Screen name="Medical Excuses" component={List} />
+         <Stack.Screen name="Absense Excuse" component={List} />
          <Stack.Screen name="New Request" component={NewForm}/>
    </Stack.Navigator>
    </Page>

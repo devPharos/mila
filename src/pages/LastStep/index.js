@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { TouchableOpacity, Text, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import theme from '../../global/styles/theme';
 import { Entypo } from '@expo/vector-icons';
@@ -6,11 +6,12 @@ import { Entypo } from '@expo/vector-icons';
 import Header from '../../components/Header';
 import RegistrationStatus from '../../components/RegistrationStatus';
 import Logo from '../../components/Logo';
-import { logOut } from '../../hooks/register';
 
 import { Page, Container, Box, Main } from './styles';
+import { RegisterContext } from '../../hooks/register';
 
 export function LastStep({ navigation }) {
+    const { logOut } = useContext(RegisterContext);
 
     return (
     <Page>

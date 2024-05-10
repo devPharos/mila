@@ -5,15 +5,16 @@ import { CircularProgressBase } from 'react-native-circular-progress-indicator';
 import Loading from '../../components/Loading';
 import ClassesList from '../ClassesList';
 import { Feather } from '@expo/vector-icons';
-import { logOut, RegisterContext } from '../../hooks/register';
+import { RegisterContext } from '../../hooks/register';
 
 import { Container, Canvas } from './styles';
 import ClassReportHeader from './ClassReportHeader';
 import { format, parseISO } from 'date-fns';
 import { capitalizeFirstLetter } from '../../global/functions/dashboard';
+import ClassExcuses from './ClassExcuses';
 
-const ClassReport = () => {
-    const { group, frequency, periodDate } = useContext(RegisterContext);
+const ClassReport = ({ navigation }) => {
+    const { group, frequency, periodDate, logOut } = useContext(RegisterContext);
     const [loading,setLoading] = useState(false);
     const [currentFrequency, setCurrentFrequency] = useState(frequency[frequency.length - 1])
     const props = {
@@ -88,12 +89,6 @@ const ClassReport = () => {
                                 </View>
                             </View>
                             <View style={{ width: '100%',alignItems: 'center', justifyContent: 'space-evenly', flexDirection: 'row' }}>
-                                {/* <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Text style={{ marginBottom: 16}}>Presence in Class</Text>
-                                    <View style={{ backgroundColor: "#efefef", width: 50, height: 35, borderRadius: 15, alignItems: 'center',justifyContent: 'center'}}>
-                                        <Text style={{color: theme.colors.secondary}}>{ ((g.otherClasses.length - g.otherAbsences.length) / (g.otherClasses.length) * 100).toFixed(0) }%</Text>
-                                    </View>
-                                </View> */}
                                 <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                                     <Text style={{ marginBottom: 16}}>Final Average Grade</Text>
                                     {g.finalAverageGrade ?
@@ -113,15 +108,7 @@ const ClassReport = () => {
                 )
             })
             }
-            {/* <TouchableOpacity style={theme.buttons.secondaryButton}>
-                <MaterialIcons name="file-download" style={{ fontSize: 22,color: theme.colors.secondary }} />
-                <Text style={{ color: theme.colors.secondary}}>Print Attendance</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={theme.buttons.secondaryButton}>
-                <MaterialIcons name="file-download" style={{ fontSize: 22,color: theme.colors.secondary }} />
-                <Text style={{ color: theme.colors.secondary}}>Print Evaluation Chart</Text>
-            </TouchableOpacity> */}
+            <ClassExcuses navigation={navigation} />
                 
             <TouchableOpacity style={theme.buttons.secondaryButtonSimple} onPress={() => { logOut(); }}>
                 <Text style={{ color: '#868686'}}>Log Out</Text>
