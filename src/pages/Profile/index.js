@@ -1,6 +1,6 @@
 import React, {  useState, useEffect, useContext } from 'react';
 import { Page, Main, Profilepic } from './styles';
-import { TouchableOpacity, ScrollView, Text, View, Image, useWindowDimensions } from 'react-native';
+import { TouchableOpacity, ScrollView, Text, View, Image } from 'react-native';
 import { FontAwesome, FontAwesome5 } from '@expo/vector-icons';
 import auth from '@react-native-firebase/auth';
 import QRCode from 'react-native-qrcode-svg';
@@ -36,7 +36,7 @@ export function Profile({ navigation }) {
     };
 
     useEffect(() => {
-      if(student.birthDate.substring(5) === format(new Date(), 'MM-dd')) {
+      if(student.birthDate && student.birthDate.substring(5) === format(new Date(), 'MM-dd')) {
          setOpenBirthdayModal(true);
       }
     },[student])
