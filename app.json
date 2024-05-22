@@ -2,9 +2,9 @@
   "expo": {
     "name": "MILA Student",
     "slug": "studentdashboard",
-    "version": "1.25",
-    "android_verion": "1.0.25",
-    "ios_verion": "1.25",
+    "version": "1.26",
+    "android_verion": "1.0.26",
+    "ios_verion": "1.26",
     "assetBundlePatterns": [
       "**/*"
     ],

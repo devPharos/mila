@@ -29,53 +29,59 @@ export function Vacations({ navigation }) {
                return list.push(
                   axios.get(`https://api.jotform.com/submission/${vacation}?apikey=${params.jotform_api_key}&addWorkflowStatus=1`)
                   .then(({ data }) => {
-                  const obj = data.content.answers;
-                  const anwsers = Object.keys(obj).map((key) => [key, obj[key]]);
+                     if(data.responseCode === 200) {
+                        const obj = data.content.answers;
+                        const anwsers = Object.keys(obj).map((key) => [key, obj[key]]);
 
-                  // console.log(anwsers.find((answer) => answer[1].name === 'uniqueId')[0])
-                  let id = null;
-                  if(anwsers.find((answer) => answer[1].name === 'uniqueId')) {
-                     id = anwsers.find((answer) => answer[1].name === 'uniqueId')[1]?.answer;
+                        // console.log(anwsers.find((answer) => answer[1].name === 'uniqueId')[0])
+                        let id = null;
+                        if(anwsers.find((answer) => answer[1].name === 'uniqueId')) {
+                           id = anwsers.find((answer) => answer[1].name === 'uniqueId')[1]?.answer;
+                        }
+                        const vacationRequest = anwsers.find((answer) => answer[1].name === 'vacationsRequest')[1]?.answer;
+
+                        let period = null;
+                        if(anwsers.find((answer) => answer[1].name === 'period')) {
+                           period = anwsers.find((answer) => answer[1].name === 'period')[1]?.answer;
+                        }
+                        
+                        let startDate = anwsers.find((answer) => answer[1].name === 'startDate')[1]?.answer;
+                        startDate = startDate.month+"/"+startDate.day+"/"+startDate.year;
+                        
+                        let endDate = anwsers.find((answer) => answer[1].name === 'endDate')[1]?.answer;
+                        endDate = endDate && endDate.month+"/"+endDate.day+"/"+endDate.year;
+                        
+                        let returnDate = anwsers.find((answer) => answer[1].name === 'returnDate')[1]?.answer;
+                        returnDate = returnDate && returnDate.month+"/"+returnDate.day+"/"+returnDate.year;
+                        
+                        let invoiceFree = anwsers.find((answer) => answer[1].name === 'invoiceFree')[1]?.answer;
+                        invoiceFree = invoiceFree && invoiceFree.month+"/"+invoiceFree.day+"/"+invoiceFree.year;
+
+                        let createdAt = data.content.created_at;
+                        createdAt = createdAt && createdAt.substring(5,7)+"/"+createdAt.substring(8,10)+"/"+createdAt.substring(0,4)
+                        
+                        const wfstatus = data.content.workflowStatusDetails.text;
+                        const status = !wfstatus ? 'Pending...' : wfstatus === 'ACTIVE' ? 'Pending...' : wfstatus === '1_Approve_Financial' ? 'Pending...' : wfstatus === 'DSO_Approved_1' ? 'Pending...' : wfstatus === '1_Denied_Financial' ? 'Financial Denied' : wfstatus === '2_Approved_Financial' ? 'Pending...' : wfstatus === 'DSO_Approved' ? 'Approved' : 'DSO Denied';
+                        const vacationsRequest = anwsers.find((answer) => answer[1].name === 'vacationsRequest')[1]?.answer;
+
+                        return {
+                           id,
+                           period,
+                           vacationRequest,
+                           createdAt,
+                           startDate,
+                           endDate,
+                           returnDate,
+                           invoiceFree,
+                           status,
+                           vacationsRequest
+                        }
+                     }
                   }
-                  const vacationRequest = anwsers.find((answer) => answer[1].name === 'vacationsRequest')[1]?.answer;
-
-                  let period = null;
-                  if(anwsers.find((answer) => answer[1].name === 'period')) {
-                     period = anwsers.find((answer) => answer[1].name === 'period')[1]?.answer;
-                  }
-                  
-                  let startDate = anwsers.find((answer) => answer[1].name === 'startDate')[1]?.answer;
-                  startDate = startDate.month+"/"+startDate.day+"/"+startDate.year;
-                  
-                  let endDate = anwsers.find((answer) => answer[1].name === 'endDate')[1]?.answer;
-                  endDate = endDate && endDate.month+"/"+endDate.day+"/"+endDate.year;
-                  
-                  let returnDate = anwsers.find((answer) => answer[1].name === 'returnDate')[1]?.answer;
-                  returnDate = returnDate && returnDate.month+"/"+returnDate.day+"/"+returnDate.year;
-                  
-                  let invoiceFree = anwsers.find((answer) => answer[1].name === 'invoiceFree')[1]?.answer;
-                  invoiceFree = invoiceFree && invoiceFree.month+"/"+invoiceFree.day+"/"+invoiceFree.year;
-
-                  let createdAt = data.content.created_at;
-                  createdAt = createdAt && createdAt.substring(5,7)+"/"+createdAt.substring(8,10)+"/"+createdAt.substring(0,4)
-                  
-                  const status = !data.content.workflowStatusDetails ? 'Pending...' : data.content.workflowStatusDetails.text === 'ACTIVE' ? 'Pending...' : data.content.workflowStatusDetails.text === '1_Approve_Financial' ? 'Pending...' : data.content.workflowStatusDetails.text === '1_Denied_Financial' ? 'Financial Denied' : data.content.workflowStatusDetails.text === '2_Approved_Financial' ? 'Pending...' : data.content.workflowStatusDetails.text === 'DSO_Approved' ? 'Approved' : 'DSO Denied';
-                  const vacationsRequest = anwsers.find((answer) => answer[1].name === 'vacationsRequest')[1]?.answer;
-
-                  return {
-                     id,
-                     period,
-                     vacationRequest,
-                     createdAt,
-                     startDate,
-                     endDate,
-                     returnDate,
-                     invoiceFree,
-                     status,
-                     vacationsRequest
-                   }
-               }
-            )
+               ).catch((err) => {
+                  console.log(err)
+                  return {}
+               })
             )
 
             })
@@ -92,7 +98,8 @@ export function Vacations({ navigation }) {
          <TouchableOpacity onPress={() => setLoading(true)} style={{ width: '100%', backgroundColor: theme.colors.grayOpacity, flexDirection: 'row', height: 50, alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ color: theme.colors.gray, fontWeight: 'bold' }}><Ionicons name="refresh" size={16} color={theme.colors.gray} /> {loading ? 'Loading...' : 'Refresh information'}</Text>
          </TouchableOpacity>
-      <FlatList data={vacations} renderItem={({item,index}) =>  {
+      <FlatList data={vacations.filter((vc) => vc.id)} renderItem={({item,index}) =>  {
+         // console.log(item)
       return item.id && <View style={{ width: '100%', backgroundColor: index % 2 === 0 ? '#FFF' : '#fcfcfc', paddingVertical: 8, paddingHorizontal: 16, borderBottomWidth: 1, borderColor: '#efefef', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center' }}>
          
          <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>

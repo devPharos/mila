@@ -29,27 +29,32 @@ export function AbsenseExcuse({ navigation }) {
                return list.push(
                   axios.get(`https://api.jotform.com/submission/${excuse}?apikey=${params.jotform_api_key}&addWorkflowStatus=1`)
                   .then(({ data }) => {
-                  const obj = data.content.answers;
-                  const anwsers = Object.keys(obj).map((key) => [key, obj[key]]);
-                  
-                  const id = anwsers.find((answer) => answer[1].name === 'uniqueId')[1].answer;
-                  const dateFromRet = anwsers.find((answer) => answer[1].name === 'startDate')[1].answer;
-                  const dateFrom = dateFromRet.month+"/"+dateFromRet.day+"/"+dateFromRet.year;
-                  const dateToRet = anwsers.find((answer) => answer[1].name === 'endDate')[1].answer;
-                  const dateTo = dateToRet.month+"/"+dateToRet.day+"/"+dateToRet.year;
-                  const createdAt = data.content.created_at;
-                  const status = data.content.workflowStatus === 'ACTIVE' ? 'Pending...' : data.content.workflowStatus === 'Deny' ? 'Denied' : data.content.workflowStatus === 'More Information' ? 'Add More Information' : 'Approved';
+                     if(data.responseCode === 200) {
+                        const obj = data.content.answers;
+                        const anwsers = Object.keys(obj).map((key) => [key, obj[key]]);
+                        
+                        const id = anwsers.find((answer) => answer[1].name === 'uniqueId')[1].answer;
+                        const dateFromRet = anwsers.find((answer) => answer[1].name === 'startDate')[1].answer;
+                        const dateFrom = dateFromRet.month+"/"+dateFromRet.day+"/"+dateFromRet.year;
+                        const dateToRet = anwsers.find((answer) => answer[1].name === 'endDate')[1].answer;
+                        const dateTo = dateToRet.month+"/"+dateToRet.day+"/"+dateToRet.year;
+                        const createdAt = data.content.created_at;
+                        const status = data.content.workflowStatus === 'ACTIVE' ? 'Pending...' : data.content.workflowStatus === 'Deny' ? 'Denied' : data.content.workflowStatus === 'More Information' ? 'Add More Information' : 'Approved';
 
-                  return {
-                     id,
-                     createdAt,
-                     dateFrom,
-                     dateTo,
-                     status,
-                     submission_id: excuse
-                   }
-               }
-            )
+                        return {
+                           id,
+                           createdAt,
+                           dateFrom,
+                           dateTo,
+                           status,
+                           submission_id: excuse
+                        }
+                     }
+                  }
+               ).catch((err) => {
+                  console.log(err)
+                  return {}
+               })
             )
 
             })
@@ -70,10 +75,11 @@ export function AbsenseExcuse({ navigation }) {
          <TouchableOpacity onPress={() => setLoading(true)} style={{ width: '100%', backgroundColor: theme.colors.grayOpacity, flexDirection: 'row', height: 50, alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ color: theme.colors.gray, fontWeight: 'bold' }}><Ionicons name="refresh" size={16} color={theme.colors.gray} /> {loading ? 'Loading...' : 'Refresh information'}</Text>
          </TouchableOpacity>
-      <FlatList data={medicalExcuses} renderItem={({item,index}) => (
+      <FlatList data={medicalExcuses.filter((me) => me.id)} renderItem={({item,index}) => (
       <TouchableOpacity onPress={() => item.status === 'Add More Information' ? handleEditForm(item) : null} style={{ width: '100%', backgroundColor: index % 2 === 0 ? '#FFF' : '#fcfcfc', paddingVertical: 8, paddingHorizontal: 16, borderBottomWidth: 1, borderColor: '#efefef', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
          
          <View>
+            { console.log(item) }
             <Text style={{ fontWeight: 'bold', color: theme.colors.secondary, fontSize: 16 }}>{item.id}</Text>
             
             {item.dateTo ? <>
