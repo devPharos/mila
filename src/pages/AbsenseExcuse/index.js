@@ -173,8 +173,8 @@ export function AbsenseExcuse({ navigation }) {
    }
 
    return <Page>
-      <Header showLogo={true} navigation={navigation} drawer='Absense Excuse' />
-      <Stack.Navigator id="AbsenseExcuse" initialRouteName="Absense Excuse" screenOptions={{
+      <Header showLogo={true} navigation={navigation} drawer='Absence Excuse' />
+      <Stack.Navigator id="AbsenseExcuse" initialRouteName="Absence Excuse" screenOptions={{
          headerRight: () => (
             <TouchableOpacity onPress={() => navigation.navigate('New Request')}>
                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -183,7 +183,7 @@ export function AbsenseExcuse({ navigation }) {
                </View>
             </TouchableOpacity>)
       }} >
-         <Stack.Screen name="Absense Excuse" component={List} />
+         <Stack.Screen name="Absence Excuse" component={List} />
          <Stack.Screen name="New Request" component={NewForm} />
       </Stack.Navigator>
    </Page>
