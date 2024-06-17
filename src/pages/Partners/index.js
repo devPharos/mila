@@ -17,30 +17,30 @@ export default function Partners({ navigation }) {
   const [selectedCoupon, setSelectedCoupon] = useState(null);
   const [promos, setPromos] = useState([])
 
-  const OpenURLButton = ({url, children}) => {
+  const OpenURLButton = ({ url, children }) => {
     const handlePress = useCallback(async () => {
       const supported = await Linking.canOpenURL(url);
-  
+
       if (supported) {
         await Linking.openURL(url);
       }
     }, [url]);
-  
+
     return <TouchableOpacity onPress={handlePress}>{children}</TouchableOpacity>;
   };
 
   useEffect(() => {
-    function getCoupons(){
+    function getCoupons() {
       const returnedPromos = []
       axios.get(`https://api.jotform.com/form/${params.jotform_partners_url_code}/submissions?apiKey=${params.jotform_api_key}&addWorkflowStatus=1&orderby=created_at`)
-      .then(({ data }) => {
-        
-        const forms = data.content;
-        forms.map((form) => {
-          // if(form.status === 'ACTIVE' || form.status === 'CUSTOM') {
+        .then(({ data }) => {
+
+          const forms = data.content;
+          forms.map((form) => {
+            // if(form.status === 'ACTIVE' || form.status === 'CUSTOM') {
             const anwsers = Object.keys(form.answers).map((key) => [key, form.answers[key]]);
             const nameAnswer = anwsers.find((answer) => answer[1].name === 'partnerdata')[1]?.answer;
-            if(nameAnswer) {
+            if (nameAnswer) {
               const fields = Object.keys(nameAnswer).map((key) => [key, nameAnswer[key]]);
               // const name = fields[0][1];
               const address = fields[1][1];
@@ -53,16 +53,16 @@ export default function Partners({ navigation }) {
               const onlyOnline = anwsers.find((answer) => answer[1].name === 'myBusiness')[1]?.answer;
 
               const name = anwsers.find((answer) => answer[1].name === 'businessName')[1]?.answer;
-      
+
               const logo = anwsers.find((answer) => answer[1].name === 'logoUpload')[1]?.answer[0];
 
               const filials = anwsers.find((answer) => answer[1].name === 'pleaseSelect')[1]?.answer;
 
-              const fromFilials = filials.map((filial) => {
+              const fromFilials = filials && filials.length > 0 && filials.map((filial) => {
                 return filial === 'Orlando' ? 'ORL' : filial === 'Miami' ? 'MIA' : filial === 'Boca Raton' ? 'BOC' : filial === 'Jacksonville' ? 'JAC' : ''
               })
-      
-              
+
+
               const ifNecessary = anwsers.find((answer) => answer[1].name === 'ifNecessary')[1]?.answer;
 
 
@@ -74,37 +74,37 @@ export default function Partners({ navigation }) {
               const category = anwsers.find((answer) => answer[1].name === 'category')[1]?.answer;
 
               const benefits = benefitArray && Object.keys(benefitArray).map((key) => [key, benefitArray[key]]).filter(benefit => benefit[1] !== '[\"\"]');
-              const benefit = benefits && benefits.map((ben) => {
-                if(ben[0].includes('A discount of $')) {
-                  return `A discount of ${ben[1].replace('[\"','').replace('\"]','')} per transaction.`
-                } else if(ben[0].includes('A discount of %')) {
-                  return `A discount of ${ben[1].replace('[\"','').replace('\"]','')} per transaction.`
+              const benefit = benefits && benefits.length > 0 && benefits.map((ben) => {
+                if (ben[0].includes('A discount of $')) {
+                  return `A discount of ${ben[1].replace('[\"', '').replace('\"]', '')} per transaction.`
+                } else if (ben[0].includes('A discount of %')) {
+                  return `A discount of ${ben[1].replace('[\"', '').replace('\"]', '')} per transaction.`
                 } else {
-                  return ben[1].replace('[\"','').replace('\"]','')
+                  return ben[1].replace('[\"', '').replace('\"]', '')
                 }
               })
 
               const tag = category === 'Food' ? 'food-fork-drink' : category === 'Services' ? 'tools' : category === 'Entertainment' ? 'party-popper' : category === 'Shopping' ? 'shopping' : 'dots-horizontal-circle'
-      
-              if(statusMkt === 'ACTIVE') {
-                returnedPromos.push({ id: form.id, name, logo, tag, address, city, state, zipCode, benefit, fromFilials, ifNecessary, onlyOnline, homePage, instagram, facebook }) 
+
+              if (statusMkt === 'ACTIVE') {
+                returnedPromos.push({ id: form.id, name, logo, tag, address, city, state, zipCode, benefit, fromFilials, ifNecessary, onlyOnline, homePage, instagram, facebook })
               }
             }
-          // }
+            // }
+          })
+        }).finally(() => {
+          setPromos(returnedPromos)
         })
-      }).finally(() => {
-        setPromos(returnedPromos)
-      })
     }
     getCoupons()
-  },[])
+  }, [])
 
   function unicodeToChar(text) {
-    return text.replace(/\\u[\dA-F]{4}/gi, 
-           function (match) {
-                return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
-           });
- }
+    return text.replace(/\\u[\dA-F]{4}/gi,
+      function (match) {
+        return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
+      });
+  }
 
   const listOfIcons = [
     {
@@ -135,66 +135,65 @@ export default function Partners({ navigation }) {
 
   return <Page style={{ justifyContent: 'center', alignItems: 'center' }}>
     <Header showLogo={true} navigation={navigation} />
-    <View style={{ backgroundColor: theme.colors.secondary, width: '100%', paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+    <View style={{ backgroundColor: theme.colors.secondary, width: '100%', paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
       <Text style={{ fontSize: 18, fontWeight: 'bold', color: "#FFF" }}>MILA Partners</Text>
     </View>
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-      <Text style={{ color:theme.colors.secondary, fontSize: 12, paddingLeft: 12, paddingRight: 6 }}>Filter:</Text>
-    <FlatList style={{ marginVertical: 18, maxHeight: 40, minHeight: 40, paddingHorizontal: 12 }} showsHorizontalScrollIndicator={false} data={listOfIcons} horizontal={true}  renderItem={({item}) => <TouchableOpacity onPress={() => setSelectedCategory(selectedCategory == item.id ? null : item.id)} style={{ borderWidth: 1, borderColor: theme.colors.secondary, borderStyle: 'dashed',backgroundColor: "#fff", paddingHorizontal: 8, paddingVertical: 8, borderRadius: 6, marginRight: 12, overflow: 'hidden', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>{item.id === null ? <Text style={{ color: selectedCategory == null ? theme.colors.secondary : "#ccc" }}>All Coupons</Text> : <MaterialCommunityIcons name={item.id} size={24} style={{ height: 24, width: 24 }} color={selectedCategory == item.id ? theme.colors.secondary : "#ccc" } />}</TouchableOpacity>} keyExtractor={item => item.id} />
+      <Text style={{ color: theme.colors.secondary, fontSize: 12, paddingLeft: 12, paddingRight: 6 }}>Filter:</Text>
+      <FlatList style={{ marginVertical: 18, maxHeight: 40, minHeight: 40, paddingHorizontal: 12 }} showsHorizontalScrollIndicator={false} data={listOfIcons} horizontal={true} renderItem={({ item }) => <TouchableOpacity onPress={() => setSelectedCategory(selectedCategory == item.id ? null : item.id)} style={{ borderWidth: 1, borderColor: theme.colors.secondary, borderStyle: 'dashed', backgroundColor: "#fff", paddingHorizontal: 8, paddingVertical: 8, borderRadius: 6, marginRight: 12, overflow: 'hidden', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>{item.id === null ? <Text style={{ color: selectedCategory == null ? theme.colors.secondary : "#ccc" }}>All Coupons</Text> : <MaterialCommunityIcons name={item.id} size={24} style={{ height: 24, width: 24 }} color={selectedCategory == item.id ? theme.colors.secondary : "#ccc"} />}</TouchableOpacity>} keyExtractor={item => item.id} />
     </View>
     <ScrollView style={{ width: '100%', flexDirection: 'column' }}>
-      {promos.map(promo => 
-        {
-          return !selectedCategory || selectedCategory == promo.tag ? <Promo key={promo.id} promo={promo} setSelectedCoupon={setSelectedCoupon} /> : null
-        })}
+      {promos.map(promo => {
+        return !selectedCategory || selectedCategory == promo.tag ? <Promo key={promo.id} promo={promo} setSelectedCoupon={setSelectedCoupon} /> : null
+      })}
     </ScrollView>
     <Modal
-        animationType="slide"
-        transparent={false}
-        visible={selectedCoupon && selectedCoupon.id && selectedCoupon.id > 0}
-        presentationStyle='fullscreen'
-        onRequestClose={() => {
-          setSelectedCoupon(null);
-        }}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Image source={{ uri: selectedCoupon && selectedCoupon.logo+`?apiKey=${params.jotform_api_key}` }} resizeMode='center' style={{ width: 250, height: 150}} />
-            <Text style={styles.modalText}>{selectedCoupon && selectedCoupon.name}</Text>
-            
-            {selectedCoupon && selectedCoupon.benefit && selectedCoupon.benefit.map((ben,index) => {
-                return <Text key={index} style={{ fontSize: 16, textAlign: 'justify' }}>{unicodeToChar(ben)}</Text>
-            })}
+      animationType="slide"
+      transparent={false}
+      visible={selectedCoupon && selectedCoupon.id && selectedCoupon.id > 0}
+      presentationStyle='fullscreen'
+      onRequestClose={() => {
+        setSelectedCoupon(null);
+      }}>
+      <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+          <Image source={{ uri: selectedCoupon && selectedCoupon.logo + `?apiKey=${params.jotform_api_key}` }} resizeMode='center' style={{ width: 250, height: 150 }} />
+          <Text style={styles.modalText}>{selectedCoupon && selectedCoupon.name}</Text>
 
-            { selectedCoupon && selectedCoupon.ifNecessary &&
+          {selectedCoupon && selectedCoupon.benefit && selectedCoupon.benefit.map((ben, index) => {
+            return <Text key={index} style={{ fontSize: 16, textAlign: 'justify' }}>{unicodeToChar(ben)}</Text>
+          })}
+
+          {selectedCoupon && selectedCoupon.ifNecessary &&
             <Text style={styles.modalText}>{selectedCoupon.ifNecessary}</Text>
-            }
+          }
 
-            <View style={{ flexDirection: 'row', width: 150, alignItems: 'center', justifyContent: 'center', marginTop: 24 }}>
-            { selectedCoupon && selectedCoupon.homePage &&
+          <View style={{ flexDirection: 'row', width: 150, alignItems: 'center', justifyContent: 'center', marginTop: 24 }}>
+            {selectedCoupon && selectedCoupon.homePage &&
               <OpenURLButton url={selectedCoupon.homePage}>
                 <MaterialCommunityIcons name='web' size={24} style={{ height: 24, width: 24, marginRight: 24 }} color={theme.colors.secondary} />
               </OpenURLButton>
             }
-            { selectedCoupon && selectedCoupon.instagram &&
+            {selectedCoupon && selectedCoupon.instagram &&
               <OpenURLButton url={`https://instagram.com/${selectedCoupon.instagram}`}>
                 <MaterialCommunityIcons name='instagram' size={24} style={{ height: 24, width: 24, marginRight: 24 }} color={theme.colors.secondary} />
               </OpenURLButton>
             }
-            { selectedCoupon && selectedCoupon.facebook &&
+            {selectedCoupon && selectedCoupon.facebook &&
               <OpenURLButton url={`https://facebook.com/${selectedCoupon.facebook}`}>
                 <MaterialCommunityIcons name='facebook' size={24} style={{ height: 24, width: 24 }} color={theme.colors.secondary} />
               </OpenURLButton>
             }
-            </View>
-
-            <Text style={[styles.modalText,{marginBottom: 6, fontSize: 14, marginTop: 16}]}>Enjoy this coupon!</Text>
           </View>
-          <TouchableOpacity
-            onPress={() => setSelectedCoupon(null)}>
-            <Text style={{ color: '#868686', paddingVertical: 16, width: 100, textAlign: 'center' }} >Close</Text>
-          </TouchableOpacity>
+
+          <Text style={[styles.modalText, { marginBottom: 6, fontSize: 14, marginTop: 16 }]}>Enjoy this coupon!</Text>
         </View>
-      </Modal>
+        <TouchableOpacity
+          onPress={() => setSelectedCoupon(null)}>
+          <Text style={{ color: '#868686', paddingVertical: 16, width: 100, textAlign: 'center' }} >Close</Text>
+        </TouchableOpacity>
+      </View>
+    </Modal>
   </Page>;
 }
 
