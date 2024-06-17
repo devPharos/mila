@@ -346,6 +346,28 @@ function createUserWithEmailAndPassword(account, navigation) {
 
 async function createUserAtFirebase(account) {
     try {
+        const { data } = await api.get(`/students/${account.registration}/`);
+        const retData = data.data;
+        const { name, birthDate, phone, email, country, nsevis } = retData;
+        const teacher = retData.currentGroup.teacher;
+        const level = retData.currentGroup.level;
+        const workload = retData.currentGroup.workload;
+        const schedule = retData.currentGroup.schedule;
+
+
+        let lastName = "";
+        const arrayLastName = data.data.lastName.split(" ");
+        for (var i = 0; i < arrayLastName.length; i++) {
+            if (lastName.trim() != '') {
+                lastName += " ";
+            }
+            if (arrayLastName[i].length > 3) {
+                lastName += capitalizeFirstLetter(arrayLastName[i]);
+            } else {
+                lastName += arrayLastName[i];
+            }
+        }
+
         await firestore()
             .collection('Students')
             .doc(account.registrationNumber.toUpperCase())
@@ -355,14 +377,17 @@ async function createUserAtFirebase(account) {
                 registration: account.registration,
                 registrationNumber: account.registrationNumber.toUpperCase(),
                 imageUrl: account.imageUrl || null,
-                name: account.name || null,
-                lastName: account.lastName || null,
-                level: account.level || null,
-                birthDate: account.birthDate || null,
-                country: account.country || null,
-                nsevis: account.nsevis || null,
-                schedule: account.schedule || null,
-                createdAt: new Date()
+                name: capitalizeFirstLetter(name),
+                lastName,
+                birthDate,
+                phone,
+                country: capitalizeFirstLetter(country),
+                nsevis,
+                teacher: capitalizeFirstLetter(teacher),
+                level: capitalizeFirstLetter(level),
+                workload,
+                schedule: capitalizeFirstLetter(schedule),
+                createdAt: new Date(),
             }).then(() => {
                 console.log('Usuário criado')
                 return true
