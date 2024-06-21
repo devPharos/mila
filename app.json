@@ -2,7 +2,7 @@
   "expo": {
     "name": "MILA Student",
     "slug": "studentdashboard",
-    "version": "1.30",
+    "version": "1.31",
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -27,7 +27,8 @@
           "photosPermission": "The app accesses your photos to use as a profile image."
         }
       ],
-      "expo-build-properties"
+      "expo-build-properties",
+      "expo-font"
     ],
     "icon": "./assets/icon.png",
     "splash": {
