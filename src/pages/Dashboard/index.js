@@ -182,7 +182,7 @@ export function Dashboard({ navigation }) {
                               </TouchableOpacity>
                            </>
                            :
-                           frequency[frequency.findIndex(freq => freq.period === format(new Date(), 'Y-MM'))].percFrequency < params.maxAbsenses ?
+                           frequency[frequency.findIndex(freq => freq.period === format(new Date(), 'y-MM'))].percFrequency < params.maxAbsenses ?
                               <Container style={{
                                  backgroundColor: "#FFF",
                                  width: '90%',

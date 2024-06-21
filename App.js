@@ -21,7 +21,7 @@ import { AccessChanged } from './src/pages/AccessChanged';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const [authenticated,setAuthenticated] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
   const [initializing, setInitializing] = useState(true);
 
   useFonts({ Roboto_400Regular, Roboto_500Medium, Roboto_700Bold })
@@ -44,39 +44,39 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="#fff" barStyle='dark-content' hidden={false} />
       <ThemeProvider theme={theme}>
-          <RegisterProvider>
-              <NavigationContainer id="MainNavigation">
-                <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Home">
-                
-                { authenticated ? (
-                  <Stack.Group>
-                    { authenticated ?
+        <RegisterProvider>
+          <NavigationContainer id="MainNavigation">
+            <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Home">
+
+              {authenticated ? (
+                <Stack.Group>
+                  {authenticated ?
                     <Stack.Screen name="TabNavigation" component={TabNavigation} options={
                       {
                         headerStyle: {
-                          backgroundColor: '#fff' 
-                        }
+                          backgroundColor: '#fff'
+                        },
                       }
                     } />
                     :
                     <Stack.Screen name="LastStep" component={LastStep} />
-                    }
-                    <Stack.Screen name="AccessChanged" component={AccessChanged} />
-                  </Stack.Group>
-                ):(
-                  <Stack.Group>
-                    <Stack.Screen name="Home" component={Home} />
-                    <Stack.Screen name="FirstAccess" component={FirstAccess} />
-                    <Stack.Screen name="CreatePassword" component={CreatePassword} />
-                    <Stack.Screen name="Login" component={Login} />
-                    <Stack.Screen name="Forgot" component={Forgot} />
-                  </Stack.Group>
-                )
-                }
-                
-                </Stack.Navigator>
-              </NavigationContainer>
-          </RegisterProvider>
+                  }
+                  <Stack.Screen name="AccessChanged" component={AccessChanged} />
+                </Stack.Group>
+              ) : (
+                <Stack.Group>
+                  <Stack.Screen name="Home" component={Home} />
+                  <Stack.Screen name="FirstAccess" component={FirstAccess} />
+                  <Stack.Screen name="CreatePassword" component={CreatePassword} />
+                  <Stack.Screen name="Login" component={Login} />
+                  <Stack.Screen name="Forgot" component={Forgot} />
+                </Stack.Group>
+              )
+              }
+
+            </Stack.Navigator>
+          </NavigationContainer>
+        </RegisterProvider>
       </ThemeProvider>
     </SafeAreaView>
   );

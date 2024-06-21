@@ -2,9 +2,7 @@
   "expo": {
     "name": "MILA Student",
     "slug": "studentdashboard",
-    "version": "1.29",
-    "android_verion": "1.0.29",
-    "ios_verion": "1.29",
+    "version": "1.30",
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -23,7 +21,6 @@
       "@react-native-firebase/app",
       "@react-native-firebase/perf",
       "@react-native-firebase/crashlytics",
-      "sentry-expo",
       [
         "expo-image-picker",
         {
