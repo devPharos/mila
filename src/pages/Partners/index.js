@@ -31,22 +31,23 @@ export default function Partners({ navigation }) {
 
   useEffect(() => {
     function getCoupons() {
+      const filterParam = `{"q30:matches:statusMkt":"ACTIVE"}`
       const returnedPromos = []
-      axios.get(`https://api.jotform.com/form/${params.jotform_partners_url_code}/submissions?apiKey=${params.jotform_api_key}&addWorkflowStatus=1&orderby=created_at`)
+      axios.get(`https://api.jotform.com/form/${params.jotform_partners_url_code}/submissions?apiKey=${params.jotform_api_key}&addWorkflowStatus=1&limit=1000&orderby=created_at`)
         .then(({ data }) => {
 
           const forms = data.content;
           forms.map((form) => {
             // if(form.status === 'ACTIVE' || form.status === 'CUSTOM') {
             const anwsers = Object.keys(form.answers).map((key) => [key, form.answers[key]]);
-            const nameAnswer = anwsers.find((answer) => answer[1].name === 'partnerdata')[1]?.answer;
-            if (nameAnswer) {
-              const fields = Object.keys(nameAnswer).map((key) => [key, nameAnswer[key]]);
+            const partnerData = anwsers.find((answer) => answer[1].name === 'partnerdata')[1]?.answer;
+            if (partnerData) {
+              const fields = Object.keys(partnerData).map((key) => [key, partnerData[key]]);
               // const name = fields[0][1];
-              const address = fields[1][1];
-              const city = fields[2][1];
-              const state = fields[3][1];
-              const zipCode = fields[4][1];
+              const address = partnerData['streetaddress-2'] || null;
+              const city = partnerData['city-2'] || null;
+              const state = partnerData['state-2'] || null;
+              const zipCode = partnerData['zip-2'] || null;
 
               const statusMkt = anwsers.find((answer) => answer[1].name === 'statusMkt')[1]?.answer;
 
@@ -62,9 +63,7 @@ export default function Partners({ navigation }) {
                 return filial === 'Orlando' ? 'ORL' : filial === 'Miami' ? 'MIA' : filial === 'Boca Raton' ? 'BOC' : filial === 'Jacksonville' ? 'JAC' : ''
               })
 
-
               const ifNecessary = anwsers.find((answer) => answer[1].name === 'ifNecessary')[1]?.answer;
-
 
               const homePage = anwsers.find((answer) => answer[1].name === 'homePage')[1]?.answer;
               const instagram = anwsers.find((answer) => answer[1].name === 'instagram')[1]?.answer;

@@ -211,13 +211,57 @@ function RegisterProvider({ children }) {
             .signOut()
     }
 
+    async function updateClassInformation(student) {
+        try {
+            const { data } = await api.get(`/students/${student.registration}`);
+            let lastName = "";
+            const arrayLastName = data.data.lastName.split(" ");
+            for (var i = 0; i < arrayLastName.length; i++) {
+                if (lastName.trim() != '') {
+                    lastName += " ";
+                }
+                if (arrayLastName[i].length > 3) {
+                    lastName += capitalizeFirstLetter(arrayLastName[i]);
+                } else {
+                    lastName += arrayLastName[i];
+                }
+            }
+            await firestore().collection('Students').doc(student.registrationNumber).update({
+                name: capitalizeFirstLetter(data.data.name),
+                lastName,
+                level: capitalizeFirstLetter(data.data.currentGroup.level),
+                schedule: capitalizeFirstLetter(data.data.currentGroup.schedule),
+                birthDate: data.data.birthDate,
+                country: capitalizeFirstLetter(data.data.country),
+                nsevis: data.data.nsevis,
+                email: data.data.email.toLowerCase()
+            }).then(() => {
+                setStudent({
+                    ...student,
+                    name: capitalizeFirstLetter(data.data.name),
+                    lastName,
+                    level: capitalizeFirstLetter(data.data.currentGroup.level),
+                    schedule: capitalizeFirstLetter(data.data.currentGroup.schedule),
+                    birthDate: data.data.birthDate,
+                    country: capitalizeFirstLetter(data.data.country),
+                    nsevis: data.data.nsevis,
+                    email: data.data.email.toLowerCase()
+                })
+            })
+
+        } catch (err) {
+            console.log(err)
+        }
+
+    }
+
     useEffect(() => {
         const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
         return subscriber; // unsubscribe on unmount
     }, []);
 
     return (
-        <RegisterContext.Provider value={{ logOut, student, setStudent, blockedStudent, dashboard, updateDashboard, profilePicChange, getStudentFromAPI, getDashboardData, period, setPeriod, periods, setPeriods, periodDate, setPeriodDate, group, setGroup, periodDates, setPeriodDates, groups, setGroups, frequency, setFrequency, params }} >
+        <RegisterContext.Provider value={{ logOut, student, setStudent, updateClassInformation, blockedStudent, dashboard, updateDashboard, profilePicChange, getStudentFromAPI, getDashboardData, period, setPeriod, periods, setPeriods, periodDate, setPeriodDate, group, setGroup, periodDates, setPeriodDates, groups, setGroups, frequency, setFrequency, params }} >
             {children}
         </RegisterContext.Provider>
     )

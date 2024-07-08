@@ -21,47 +21,47 @@ export function AbsenseExcuse({ navigation }) {
       const [medicalExcuses, setMedicalExcuses] = useState([]);
       const [loading, setLoading] = useState(true)
       useEffect(() => {
-         if (loading && student.medicalExcuses) {
-            setMedicalExcuses([])
-            setLoading(false)
-            const list = [];
-            student.medicalExcuses.map(async (excuse) => {
-               return list.push(
-                  axios.get(`https://api.jotform.com/submission/${excuse}?apikey=${params.jotform_api_key}&addWorkflowStatus=1`)
-                     .then(({ data }) => {
-                        if (data.responseCode === 200) {
-                           const obj = data.content.answers;
-                           const anwsers = Object.keys(obj).map((key) => [key, obj[key]]);
 
-                           const id = anwsers.find((answer) => answer[1].name === 'uniqueId')[1].answer;
-                           const dateFromRet = anwsers.find((answer) => answer[1].name === 'startDate')[1].answer;
-                           const dateFrom = dateFromRet.month + "/" + dateFromRet.day + "/" + dateFromRet.year;
-                           const dateToRet = anwsers.find((answer) => answer[1].name === 'endDate')[1].answer;
-                           const dateTo = dateToRet.month + "/" + dateToRet.day + "/" + dateToRet.year;
-                           const createdAt = data.content.created_at;
-                           const status = data.content.workflowStatus === 'ACTIVE' ? 'Pending...' : data.content.workflowStatus === 'Deny' ? 'Denied' : data.content.workflowStatus === 'More Information' ? 'Add More Information' : 'Approved';
+         function getRequests() {
+            const filterParam = `{"q33:matches:studentid":"${student.registrationNumber}"}`
+            const list = []
+            axios.get(`https://api.jotform.com/form/${params.jotform_medical_excuse_url_code}/submissions?apikey=${params.jotform_api_key}&addWorkflowStatus=1&filter=${filterParam}&orderby=created_at`)
+               .then(({ data }) => {
+                  list.push(data.content.map((cont) => {
+                     const obj = cont.answers;
+                     const submission_id = cont.id;
+                     const anwsers = Object.keys(obj).map((key) => [key, obj[key]]);
+                     const id = anwsers.find((answer) => answer[1].name === 'uniqueId')[1].answer;
+                     const dateFromRet = anwsers.find((answer) => answer[1].name === 'startDate')[1].answer;
+                     const dateFrom = dateFromRet.month + "/" + dateFromRet.day + "/" + dateFromRet.year;
+                     const dateToRet = anwsers.find((answer) => answer[1].name === 'endDate')[1].answer;
+                     const dateTo = dateToRet.month + "/" + dateToRet.day + "/" + dateToRet.year;
+                     const createdAt = cont.created_at;
+                     const status = cont.workflowStatus === 'ACTIVE' ? 'Pending...' : cont.workflowStatus === 'Deny' ? 'Denied' : cont.workflowStatus === 'More Information' ? 'Add More Information' : 'Approved';
 
-                           return {
-                              id,
-                              createdAt,
-                              dateFrom,
-                              dateTo,
-                              status,
-                              submission_id: excuse
-                           }
-                        }
+                     return {
+                        id,
+                        createdAt,
+                        dateFrom,
+                        dateTo,
+                        status,
+                        submission_id
                      }
-                     ).catch((err) => {
-                        console.log(err)
-                        return {}
-                     })
-               )
 
-            })
 
-            Promise.all(list).then((item) => {
-               setMedicalExcuses([...item.sort((a, b) => a.createdAt < b.createdAt)])
-            })
+                  }))
+               })
+               .finally(() => {
+                  setMedicalExcuses(...list.sort((a, b) => a.createdAt < b.createdAt))
+                  const requestIds = list[0].map(item => item.submission_id);
+                  firestore().collection('Students').doc(student.registrationNumber).update({
+                     medicalExcuses: requestIds
+                  })
+                  setLoading(false)
+               })
+         }
+         if (loading) {
+            getRequests()
          }
       }, [loading])
 
@@ -75,23 +75,24 @@ export function AbsenseExcuse({ navigation }) {
             <TouchableOpacity onPress={() => setLoading(true)} style={{ width: '100%', backgroundColor: theme.colors.grayOpacity, flexDirection: 'row', height: 50, alignItems: 'center', justifyContent: 'center' }}>
                <Text style={{ color: theme.colors.gray, fontWeight: 'bold' }}><Ionicons name="refresh" size={16} color={theme.colors.gray} /> {loading ? 'Loading...' : 'Refresh information'}</Text>
             </TouchableOpacity>
-            <FlatList data={medicalExcuses.filter((me) => me.id)} renderItem={({ item, index }) => (
-               <TouchableOpacity onPress={() => item.status === 'Add More Information' ? handleEditForm(item) : null} style={{ width: '100%', backgroundColor: index % 2 === 0 ? '#FFF' : '#fcfcfc', paddingVertical: 8, paddingHorizontal: 16, borderBottomWidth: 1, borderColor: '#efefef', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <FlatList data={medicalExcuses.filter((me) => me.id)} renderItem={({ item, index }) => {
+               return (
+                  <TouchableOpacity onPress={() => item.status === 'Add More Information' ? handleEditForm(item) : null} style={{ width: '100%', backgroundColor: index % 2 === 0 ? '#FFF' : '#fcfcfc', paddingVertical: 8, paddingHorizontal: 16, borderBottomWidth: 1, borderColor: '#efefef', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
 
-                  <View>
-                     {console.log(item)}
-                     <Text style={{ fontWeight: 'bold', color: theme.colors.secondary, fontSize: 16 }}>{item.id}</Text>
+                     <View>
+                        <Text style={{ fontWeight: 'bold', color: theme.colors.secondary, fontSize: 16 }}>{item.id}</Text>
 
-                     {item.dateTo ? <>
-                        <Text><Text style={{ fontWeight: 'bold', fontSize: 13, width: '50%' }}>Start date:</Text> {item.dateFrom}</Text>
-                        <Text><Text style={{ fontWeight: 'bold', fontSize: 13, width: '50%' }}>End date:</Text> {item.dateTo}</Text>
-                     </> :
-                        <Text><Text style={{ fontWeight: 'bold', fontSize: 13, width: '50%' }}>Date:</Text> {item.dateFrom}</Text>
-                     }
-                  </View>
-                  <Text style={{ fontWeight: 'bold', color: item.status === 'Pending...' ? theme.colors.grayOpacity2 : item.status === 'Add More Information' ? theme.colors.Transfer : item.status === 'Denied' ? theme.colors.primaryOpacity : theme.colors.secondary }}>{item.status}</Text>
-               </TouchableOpacity>
-            )} />
+                        {item.dateTo ? <>
+                           <Text><Text style={{ fontWeight: 'bold', fontSize: 13, width: '50%' }}>Start date:</Text> {item.dateFrom}</Text>
+                           <Text><Text style={{ fontWeight: 'bold', fontSize: 13, width: '50%' }}>End date:</Text> {item.dateTo}</Text>
+                        </> :
+                           <Text><Text style={{ fontWeight: 'bold', fontSize: 13, width: '50%' }}>Date:</Text> {item.dateFrom}</Text>
+                        }
+                     </View>
+                     <Text style={{ fontWeight: 'bold', color: item.status === 'Pending...' ? theme.colors.grayOpacity2 : item.status === 'Add More Information' ? theme.colors.Transfer : item.status === 'Denied' ? theme.colors.primaryOpacity : theme.colors.secondary }}>{item.status}</Text>
+                  </TouchableOpacity>
+               )
+            }} />
          </>
       )
    }
@@ -119,22 +120,9 @@ export function AbsenseExcuse({ navigation }) {
          }
 
          if (url.includes('https://submit.jotform.com/submit/')) {
-            if (!editForm) {
-               const { data } = await axios.get(`https://api.jotform.com/form/${params.jotform_medical_excuse_url_code}/submissions?apikey=${params.jotform_api_key}&addWorkflowStatus=1&filter={"workflowStatus":"ACTIVE"}&orderby=created_at&limit=1`)
-               data.content.map((newExcuses, index) => {
-                  if (index === 0) {
-                     const newObjExcuses = student.medicalExcuses ? [...student.medicalExcuses, newExcuses.id] : [newExcuses.id];
-                     firestore().collection('Students').doc(student.registrationNumber).update({
-                        medicalExcuses: newObjExcuses
-                     }).then(() => {
-                        setStudent({ ...student, medicalExcuses: newObjExcuses })
-                        navigation.navigate("Class Excuses")
-                     })
-                  }
-               })
-            } else {
-               navigation.navigate("Class Excuses")
-            }
+            setTimeout(() => {
+               navigation.navigate("Absence Excuse")
+            }, 3000)
          }
 
          // handle certain doctypes

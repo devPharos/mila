@@ -29,7 +29,7 @@ const ClassExcuses = ({ navigation }) => {
           params.allow_class_excuses.includes(student.registrationNumber.substring(0, 3)) ?
             <TouchableOpacity onPress={() => navigation.toggleDrawer()} style={{ borderWidth: 1, borderStyle: 'dashed', borderColor: theme.colors.secondary, width: '100%', height: 75, marginBottom: 8, backgroundColor: '#fff', borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <View>
-                <Text style={{ fontSize: 16, color: theme.colors.secondary, fontWeight: 'bold' }}>Class Excuses</Text>
+                <Text style={{ fontSize: 16, color: theme.colors.secondary, fontWeight: 'bold' }}>Absence Excuse</Text>
                 <Text style={{ color: '#868686', fontSize: 12 }}>Send a request or check your request status.</Text>
               </View>
               <MaterialIcons style={{ color: theme.colors.secondary, fontSize: 22 }} name={`menu-open`} />

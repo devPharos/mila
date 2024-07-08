@@ -1,6 +1,6 @@
 {
   "name": "studentdashboard",
-  "version": "1.31",
+  "version": "1.33",
   "main": "index.js",
   "scripts": {
     "start": "npx expo start --dev-client",
