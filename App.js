@@ -1,22 +1,28 @@
-import 'react-native-gesture-handler';
-import React, { useState, useEffect } from 'react';
-import { ThemeProvider } from 'styled-components';
-import { Home } from './src/pages/Home';
-import theme from './src/global/styles/theme';
-import { useFonts, Roboto_400Regular, Roboto_500Medium, Roboto_700Bold } from '@expo-google-fonts/roboto';
-import { FirstAccess } from './src/pages/FirstAccess';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { SafeAreaView, StatusBar, StyleSheet } from 'react-native';
+import "react-native-gesture-handler";
+import React, { useState, useEffect } from "react";
+import { ThemeProvider } from "styled-components";
+import { Home } from "./src/pages/Home";
+import theme from "./src/global/styles/theme";
+import {
+  useFonts,
+  Roboto_400Regular,
+  Roboto_500Medium,
+  Roboto_700Bold,
+} from "@expo-google-fonts/roboto";
+import { FirstAccess } from "./src/pages/FirstAccess";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { SafeAreaView, StatusBar, StyleSheet } from "react-native";
 
-import { RegisterProvider } from './src/hooks/register';
-import auth from '@react-native-firebase/auth';
-import { CreatePassword } from './src/pages/CreatePassword';
-import { Login } from './src/pages/Login';
-import { Forgot } from './src/pages/Forgot';
-import { LastStep } from './src/pages/LastStep';
-import TabNavigation from './src/pages/TabNavigation';
-import { AccessChanged } from './src/pages/AccessChanged';
+import { RegisterProvider } from "./src/hooks/register";
+import auth from "@react-native-firebase/auth";
+import { CreatePassword } from "./src/pages/CreatePassword";
+import { Login } from "./src/pages/Login";
+import { Forgot } from "./src/pages/Forgot";
+import { LastStep } from "./src/pages/LastStep";
+import TabNavigation from "./src/pages/TabNavigation";
+import { AccessChanged } from "./src/pages/AccessChanged";
+import ProgressTest from "./src/pages/ProgressTest";
 
 const Stack = createNativeStackNavigator();
 
@@ -24,7 +30,7 @@ export default function App() {
   const [authenticated, setAuthenticated] = useState(false);
   const [initializing, setInitializing] = useState(true);
 
-  useFonts({ Roboto_400Regular, Roboto_500Medium, Roboto_700Bold })
+  useFonts({ Roboto_400Regular, Roboto_500Medium, Roboto_700Bold });
 
   //Handle user state changes
   async function onAuthStateChanged(authenticated) {
@@ -42,38 +48,61 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor="#fff" barStyle='dark-content' hidden={false} />
+      <StatusBar
+        backgroundColor="#fff"
+        barStyle="dark-content"
+        hidden={false}
+      />
       <ThemeProvider theme={theme}>
         <RegisterProvider>
           <NavigationContainer id="MainNavigation">
-            <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Home">
-
+            <Stack.Navigator
+              screenOptions={{ headerShown: false }}
+              initialRouteName={authenticated ? "TabNavigation" : "Home"}
+            >
               {authenticated ? (
                 <Stack.Group>
-                  {authenticated ?
-                    <Stack.Screen name="TabNavigation" component={TabNavigation} options={
-                      {
-                        headerStyle: {
-                          backgroundColor: '#fff'
-                        },
-                      }
-                    } />
-                    :
+                  {authenticated ? (
+                    <>
+                      <Stack.Screen
+                        name="TabNavigation"
+                        component={TabNavigation}
+                        options={{
+                          headerStyle: {
+                            backgroundColor: "#fff",
+                          },
+                        }}
+                      />
+                      <Stack.Screen
+                        name="ProgressTest"
+                        component={ProgressTest}
+                        options={{
+                          headerStyle: {
+                            backgroundColor: "#fff",
+                          },
+                        }}
+                      />
+                    </>
+                  ) : (
                     <Stack.Screen name="LastStep" component={LastStep} />
-                  }
-                  <Stack.Screen name="AccessChanged" component={AccessChanged} />
+                  )}
+                  <Stack.Screen
+                    name="AccessChanged"
+                    component={AccessChanged}
+                  />
                 </Stack.Group>
               ) : (
                 <Stack.Group>
                   <Stack.Screen name="Home" component={Home} />
                   <Stack.Screen name="FirstAccess" component={FirstAccess} />
-                  <Stack.Screen name="CreatePassword" component={CreatePassword} />
+                  <Stack.Screen
+                    name="CreatePassword"
+                    component={CreatePassword}
+                  />
                   <Stack.Screen name="Login" component={Login} />
                   <Stack.Screen name="Forgot" component={Forgot} />
                 </Stack.Group>
-              )
-              }
-
+              )}
             </Stack.Navigator>
           </NavigationContainer>
         </RegisterProvider>
@@ -84,7 +113,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    backgroundColor: '#ECF0F1'
-  }
+    justifyContent: "center",
+    backgroundColor: "#ECF0F1",
+  },
 });

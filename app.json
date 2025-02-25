@@ -2,7 +2,7 @@
   "expo": {
     "name": "MILA Student",
     "slug": "studentdashboard",
-    "version": "1.33",
+    "version": "1.38",
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -24,11 +24,19 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "The app accesses your photos to use as a profile image."
+          "photosPermission": "The app accesses your photos to use as a profile image.",
+          "cameraPermission": "The app accesses your camera to update your profile image."
         }
       ],
       "expo-build-properties",
-      "expo-font"
+      "expo-font",
+      "expo-calendar",
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "The app needs to access your calendar."
+        }
+      ]
     ],
     "icon": "./assets/icon.png",
     "splash": {
