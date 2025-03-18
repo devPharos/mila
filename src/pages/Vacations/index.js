@@ -1,202 +1,484 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Page } from './styles';
-import { WebView } from 'react-native-webview';
-import Header from '../../components/Header';
-import { RegisterContext, useRegister } from '../../hooks/register';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { FlatList, Text, View } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Ionicons } from '@expo/vector-icons';
-import axios from 'axios';
-import firestore from '@react-native-firebase/firestore';
-import theme from '../../global/styles/theme';
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { Page } from "./styles";
+import { WebView } from "react-native-webview";
+import Header from "../../components/Header";
+import { RegisterContext, useRegister } from "../../hooks/register";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { FlatList, Text, View } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { Ionicons } from "@expo/vector-icons";
+import axios from "axios";
+import firestore from "@react-native-firebase/firestore";
+import theme from "../../global/styles/theme";
 
 export function Vacations({ navigation }) {
-   const { student, params } = useRegister();
-   const { group } = useContext(RegisterContext)
-   const webviewRef = useRef();
-   const Stack = createNativeStackNavigator();
+  const { student, params } = useRegister();
+  const { group } = useContext(RegisterContext);
+  const webviewRef = useRef();
+  const Stack = createNativeStackNavigator();
 
-   const List = () => {
-      const [vacations, setVacations] = useState([]);
-      const [loading, setLoading] = useState(true)
-      useEffect(() => {
-         function getRequests() {
-            const filterParam = `{"q48:matches:studentId":"${student.registrationNumber}"}`
-            const list = []
-            axios.get(`https://api.jotform.com/form/${params.jotform_vacation_url_code}/submissions?apikey=${params.jotform_api_key}&addWorkflowStatus=1&filter=${filterParam}&orderby=created_at`)
-               .then(({ data }) => {
-                  list.push(data.content.map((cont) => {
-                     const obj = cont.answers;
-                     const submission_id = cont.id;
-                     const anwsers = Object.keys(obj).map((key) => [key, obj[key]]);
-                     const id = anwsers.find((answer) => answer[1].name === 'uniqueId')[1]?.answer;
+  const List = ({ navigation }) => {
+    const [vacations, setVacations] = useState([]);
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+      function getRequests() {
+        const filterParam = `{"q48:matches:studentId":"${student.registrationNumber}"}`;
+        const list = [];
+        axios
+          .get(
+            `https://api.jotform.com/form/${params.jotform_vacation_url_code}/submissions?apikey=${params.jotform_api_key}&addWorkflowStatus=1&filter=${filterParam}&orderby=created_at`
+          )
+          .then(({ data }) => {
+            list.push(
+              data.content.map((cont) => {
+                const obj = cont.answers;
+                const submission_id = cont.id;
+                const anwsers = Object.keys(obj).map((key) => [key, obj[key]]);
+                const id = anwsers.find(
+                  (answer) => answer[1].name === "uniqueId"
+                )[1]?.answer;
 
-                     const vacationRequest = anwsers.find((answer) => answer[1].name === 'vacationsRequest')[1]?.answer;
+                const vacationRequest = anwsers.find(
+                  (answer) => answer[1].name === "vacationsRequest"
+                )[1]?.answer;
 
-                     let period = null;
-                     if (anwsers.find((answer) => answer[1].name === 'period')) {
-                        period = anwsers.find((answer) => answer[1].name === 'period')[1]?.answer;
-                     }
+                let period = null;
+                if (anwsers.find((answer) => answer[1].name === "period")) {
+                  period = anwsers.find(
+                    (answer) => answer[1].name === "period"
+                  )[1]?.answer;
+                }
 
-                     let startDate = anwsers.find((answer) => answer[1].name === 'startDate')[1]?.answer;
-                     startDate = startDate.month + "/" + startDate.day + "/" + startDate.year;
+                let startDate = anwsers.find(
+                  (answer) => answer[1].name === "startDate"
+                )[1]?.answer;
+                startDate =
+                  startDate.month + "/" + startDate.day + "/" + startDate.year;
 
-                     let endDate = anwsers.find((answer) => answer[1].name === 'endDate')[1]?.answer;
-                     endDate = endDate && endDate.month + "/" + endDate.day + "/" + endDate.year;
+                let endDate = anwsers.find(
+                  (answer) => answer[1].name === "endDate"
+                )[1]?.answer;
+                endDate =
+                  endDate &&
+                  endDate.month + "/" + endDate.day + "/" + endDate.year;
 
-                     let returnDate = anwsers.find((answer) => answer[1].name === 'returnDate')[1]?.answer;
-                     returnDate = returnDate && returnDate.month + "/" + returnDate.day + "/" + returnDate.year;
+                let returnDate = anwsers.find(
+                  (answer) => answer[1].name === "returnDate"
+                )[1]?.answer;
+                returnDate =
+                  returnDate &&
+                  returnDate.month +
+                    "/" +
+                    returnDate.day +
+                    "/" +
+                    returnDate.year;
 
-                     let invoiceFree = anwsers.find((answer) => answer[1].name === 'invoiceFree')[1]?.answer;
-                     invoiceFree = invoiceFree && invoiceFree.month + "/" + invoiceFree.day + "/" + invoiceFree.year;
+                let invoiceFree = anwsers.find(
+                  (answer) => answer[1].name === "invoiceFree"
+                )[1]?.answer;
+                invoiceFree =
+                  invoiceFree &&
+                  invoiceFree.month +
+                    "/" +
+                    invoiceFree.day +
+                    "/" +
+                    invoiceFree.year;
 
-                     let createdAt = cont.created_at;
-                     createdAt = createdAt && createdAt.substring(5, 7) + "/" + createdAt.substring(8, 10) + "/" + createdAt.substring(0, 4)
+                let createdAt = cont.created_at;
+                createdAt =
+                  createdAt &&
+                  createdAt.substring(5, 7) +
+                    "/" +
+                    createdAt.substring(8, 10) +
+                    "/" +
+                    createdAt.substring(0, 4);
 
-                     const wfstatus = cont.workflowStatusDetails && cont.workflowStatusDetails.text;
-                     const status = !wfstatus ? 'Pending...' : wfstatus === 'ACTIVE' ? 'Pending...' : wfstatus === '1_Approve_Financial' ? 'Pending...' : wfstatus === 'DSO_Approved_1' ? 'Pending...' : wfstatus === '1_Denied_Financial' ? 'Financial Denied' : wfstatus === '2_Approved_Financial' ? 'Pending...' : wfstatus === 'DSO_Approved' ? 'Approved' : 'DSO Denied';
-                     const vacationsRequest = anwsers.find((answer) => answer[1].name === 'vacationsRequest')[1]?.answer;
+                const wfstatus =
+                  cont.workflowStatusDetails && cont.workflowStatusDetails.text;
+                const status = !wfstatus
+                  ? "Pending..."
+                  : wfstatus === "ACTIVE"
+                  ? "Pending..."
+                  : wfstatus === "1_Approve_Financial"
+                  ? "Pending..."
+                  : wfstatus === "DSO_Approved_1"
+                  ? "Pending..."
+                  : wfstatus === "1_Denied_Financial"
+                  ? "Financial Denied"
+                  : wfstatus === "2_Approved_Financial"
+                  ? "Pending..."
+                  : wfstatus === "DSO_Approved"
+                  ? "Approved"
+                  : "DSO Denied";
+                const vacationsRequest = anwsers.find(
+                  (answer) => answer[1].name === "vacationsRequest"
+                )[1]?.answer;
 
-                     return {
-                        submission_id,
-                        id,
-                        period,
-                        vacationRequest,
-                        createdAt,
-                        startDate,
-                        endDate,
-                        returnDate,
-                        invoiceFree,
-                        status,
-                        vacationsRequest
-                     }
-
-
-                  }))
-               })
-               .finally(() => {
-                  setVacations(...list.sort((a, b) => a.createdAt < b.createdAt))
-                  const requestIds = list[0].map(item => item.submission_id);
-                  firestore().collection('Students').doc(student.registrationNumber).update({
-                     vacations: requestIds
-                  })
-                  setLoading(false)
-               })
-         }
-         if (loading) {
-            getRequests()
-         }
-      }, [loading])
-      return (
-         <>
-            <TouchableOpacity onPress={() => setLoading(true)} style={{ width: '100%', backgroundColor: theme.colors.grayOpacity, flexDirection: 'row', height: 50, alignItems: 'center', justifyContent: 'center' }}>
-               <Text style={{ color: theme.colors.gray, fontWeight: 'bold' }}><Ionicons name="refresh" size={16} color={theme.colors.gray} /> {loading ? 'Loading...' : 'Refresh information'}</Text>
-            </TouchableOpacity>
-            <FlatList data={vacations.filter((vc) => vc.id)} renderItem={({ item, index }) => {
-               return item.id && <View style={{ width: '100%', backgroundColor: index % 2 === 0 ? '#FFF' : '#fcfcfc', paddingVertical: 8, paddingHorizontal: 16, borderBottomWidth: 1, borderColor: '#efefef', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center' }}>
-
-                  <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-
-                     <View style={{ flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
-                        {item.id && <Text style={{ fontWeight: 'bold', color: theme.colors.secondary, fontSize: 16 }}>{item.id}</Text>}
-                        {item.createdAt && <Text><Text style={{ fontWeight: 'bold', fontSize: 13 }}>Requested:</Text> {item.createdAt}</Text>}
-                        {item.vacationsRequest && item.status !== 'Approved' && <Text><Text style={{ fontWeight: 'bold', fontSize: 13 }}>Period:</Text> {item.vacationsRequest}</Text>}
-                        {item.vacationsRequest && item.status === 'Approved' && <Text><Text style={{ fontWeight: 'bold', fontSize: 13 }}>Period:</Text> {item.period} days</Text>}
-                     </View>
-                     <Text style={{ fontWeight: 'bold', color: item.status === 'Pending...' ? theme.colors.grayOpacity2 : item.status === 'Financial Denied' ? theme.colors.primaryOpacity : item.status === 'DSO Denied' ? theme.colors.primaryOpacity : theme.colors.secondary }}>{item.status}</Text>
-
+                return {
+                  submission_id,
+                  id,
+                  period,
+                  vacationRequest,
+                  createdAt,
+                  startDate,
+                  endDate,
+                  returnDate,
+                  invoiceFree,
+                  status,
+                  vacationsRequest,
+                };
+              })
+            );
+          })
+          .finally(() => {
+            setVacations(...list.sort((a, b) => a.createdAt < b.createdAt));
+            const requestIds = list[0].map((item) => item.submission_id);
+            firestore()
+              .collection("Students")
+              .doc(student.registrationNumber)
+              .update({
+                vacations: requestIds,
+              });
+            setLoading(false);
+          });
+      }
+      if (loading) {
+        getRequests();
+      }
+    }, [loading]);
+    return (
+      <>
+        <View
+          style={{
+            width: "100%",
+            paddingHorizontal: 16,
+            backgroundColor: "#FFF",
+            flexDirection: "row",
+            height: 50,
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text
+            style={{
+              color: theme.colors.gray,
+              fontWeight: "bold",
+              fontSize: 20,
+            }}
+          >
+            Vacations
+          </Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Vacation Req.")}
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              height: 50,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text>
+                <Ionicons
+                  name="add-circle"
+                  size={24}
+                  color={theme.colors.secondary}
+                />
+              </Text>
+              <Text
+                style={{ color: theme.colors.secondary, fontWeight: "bold" }}
+              >
+                New Request
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity
+          onPress={() => setLoading(true)}
+          style={{
+            width: "100%",
+            backgroundColor: theme.colors.grayOpacity,
+            flexDirection: "row",
+            height: 50,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Text style={{ color: theme.colors.gray, fontWeight: "bold" }}>
+            <Ionicons name="refresh" size={16} color={theme.colors.gray} />{" "}
+            {loading ? "Loading..." : "Refresh information"}
+          </Text>
+        </TouchableOpacity>
+        <FlatList
+          data={vacations.filter((vc) => vc.id)}
+          renderItem={({ item, index }) => {
+            return (
+              item.id && (
+                <View
+                  style={{
+                    width: "100%",
+                    backgroundColor: index % 2 === 0 ? "#FFF" : "#fcfcfc",
+                    paddingVertical: 8,
+                    paddingHorizontal: 16,
+                    borderBottomWidth: 1,
+                    borderColor: "#efefef",
+                    flexDirection: "column",
+                    justifyContent: "flex-start",
+                    alignItems: "center",
+                  }}
+                >
+                  <View
+                    style={{
+                      width: "100%",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {item.id && (
+                        <Text
+                          style={{
+                            fontWeight: "bold",
+                            color: theme.colors.secondary,
+                            fontSize: 16,
+                          }}
+                        >
+                          {item.id}
+                        </Text>
+                      )}
+                      {item.createdAt && (
+                        <Text>
+                          <Text style={{ fontWeight: "bold", fontSize: 13 }}>
+                            Requested:
+                          </Text>{" "}
+                          {item.createdAt}
+                        </Text>
+                      )}
+                      {item.vacationsRequest && item.status !== "Approved" && (
+                        <Text>
+                          <Text style={{ fontWeight: "bold", fontSize: 13 }}>
+                            Period:
+                          </Text>{" "}
+                          {item.vacationsRequest}
+                        </Text>
+                      )}
+                      {item.vacationsRequest && item.status === "Approved" && (
+                        <Text>
+                          <Text style={{ fontWeight: "bold", fontSize: 13 }}>
+                            Period:
+                          </Text>{" "}
+                          {item.period} days
+                        </Text>
+                      )}
+                    </View>
+                    <Text
+                      style={{
+                        fontWeight: "bold",
+                        color:
+                          item.status === "Pending..."
+                            ? theme.colors.grayOpacity2
+                            : item.status === "Financial Denied"
+                            ? theme.colors.primaryOpacity
+                            : item.status === "DSO Denied"
+                            ? theme.colors.primaryOpacity
+                            : theme.colors.secondary,
+                      }}
+                    >
+                      {item.status}
+                    </Text>
                   </View>
 
-                  {item.status === 'Approved' && <View style={{ width: '100%', backgroundColor: '#efefef', borderRadius: 8, padding: 8, borderWidth: 1, borderColor: theme.colors.secondary, marginTop: 8, marginBottom: 16, flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-                     <View style={{ flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
-                        <View style={{ width: 310, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                           {item.startDate && <Text><Text style={{ fontWeight: 'bold', fontSize: 12, width: '50%' }}>Start date:</Text> {item.startDate} </Text>}
-                           {item.returnDate && <Text><Text style={{ fontWeight: 'bold', fontSize: 12, width: '50%' }}>Return Date:</Text> {item.returnDate}</Text>}
+                  {item.status === "Approved" && (
+                    <View
+                      style={{
+                        width: "100%",
+                        backgroundColor: "#efefef",
+                        borderRadius: 8,
+                        padding: 8,
+                        borderWidth: 1,
+                        borderColor: theme.colors.secondary,
+                        marginTop: 8,
+                        marginBottom: 16,
+                        flexDirection: "row",
+                        justifyContent: "flex-start",
+                        alignItems: "center",
+                      }}
+                    >
+                      <View
+                        style={{
+                          flexDirection: "column",
+                          alignItems: "flex-start",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <View
+                          style={{
+                            width: 310,
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          {item.startDate && (
+                            <Text>
+                              <Text
+                                style={{
+                                  fontWeight: "bold",
+                                  fontSize: 12,
+                                  width: "50%",
+                                }}
+                              >
+                                Start date:
+                              </Text>{" "}
+                              {item.startDate}{" "}
+                            </Text>
+                          )}
+                          {item.returnDate && (
+                            <Text>
+                              <Text
+                                style={{
+                                  fontWeight: "bold",
+                                  fontSize: 12,
+                                  width: "50%",
+                                }}
+                              >
+                                Return Date:
+                              </Text>{" "}
+                              {item.returnDate}
+                            </Text>
+                          )}
                         </View>
-                        <View style={{ width: 310, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                           {item.endDate && <Text><Text style={{ fontWeight: 'bold', fontSize: 12, width: '50%' }}>End date:</Text> {item.endDate} </Text>}
-                           {item.invoiceFree && <Text><Text style={{ fontWeight: 'bold', fontSize: 12, width: '50%' }}>Invoice Free:</Text> {item.invoiceFree}</Text>}
+                        <View
+                          style={{
+                            width: 310,
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          {item.endDate && (
+                            <Text>
+                              <Text
+                                style={{
+                                  fontWeight: "bold",
+                                  fontSize: 12,
+                                  width: "50%",
+                                }}
+                              >
+                                End date:
+                              </Text>{" "}
+                              {item.endDate}{" "}
+                            </Text>
+                          )}
+                          {item.invoiceFree && (
+                            <Text>
+                              <Text
+                                style={{
+                                  fontWeight: "bold",
+                                  fontSize: 12,
+                                  width: "50%",
+                                }}
+                              >
+                                Invoice Free:
+                              </Text>{" "}
+                              {item.invoiceFree}
+                            </Text>
+                          )}
                         </View>
-                     </View>
-                  </View>}
+                      </View>
+                    </View>
+                  )}
+                </View>
+              )
+            );
+          }}
+        />
+      </>
+    );
+  };
 
-               </View>
-            }
-            } />
-         </>
-      )
-   }
+  const NewForm = ({ navigation }) => {
+    // navigation.setOptions({
+    //    headerRight: null
+    //  })
+    const handleWebViewNavigationStateChange = async (newNavState) => {
+      // newNavState looks something like this:
+      // {
+      //   url?: string;
+      //   title?: string;
+      //   loading?: boolean;
+      //   canGoBack?: boolean;
+      //   canGoForward?: boolean;
+      // }
+      const { url } = newNavState;
 
-   const NewForm = ({ navigation }) => {
-      // navigation.setOptions({
-      //    headerRight: null
-      //  })
-      const handleWebViewNavigationStateChange = async (newNavState) => {
-         // newNavState looks something like this:
-         // {
-         //   url?: string;
-         //   title?: string;
-         //   loading?: boolean;
-         //   canGoBack?: boolean;
-         //   canGoForward?: boolean;
-         // }
-         const { url } = newNavState;
+      if (!url) return;
 
-         if (!url) return;
+      // redirect somewhere else
+      if (!url.includes("jotform.com")) {
+        return;
+      }
 
-         // redirect somewhere else
-         if (!url.includes('jotform.com')) {
-            return
-         }
+      if (url.includes("https://submit.jotform.com/submit/")) {
+        setTimeout(() => {
+          navigation.navigate("Vacations");
+        }, 3000);
+      }
 
-         if (url.includes('https://submit.jotform.com/submit/')) {
-            setTimeout(() => {
-               navigation.navigate("Vacations")
-            }, 3000)
-         }
+      // handle certain doctypes
+      if (url.includes(".pdf")) {
+        webviewRef.stopLoading();
+        // open a modal with the PDF viewer
+      }
 
-         // handle certain doctypes
-         if (url.includes('.pdf')) {
-            webviewRef.stopLoading();
-            // open a modal with the PDF viewer
-         }
+      // one way to handle a successful form submit is via query strings
+      if (url.includes("?message=success")) {
+        webviewRef.stopLoading();
+        // maybe close this view?
+      }
 
-         // one way to handle a successful form submit is via query strings
-         if (url.includes('?message=success')) {
-            webviewRef.stopLoading();
-            // maybe close this view?
-         }
+      // one way to handle errors is via query string
+      if (url.includes("?errors=true")) {
+        webviewRef.stopLoading();
+      }
+    };
 
-         // one way to handle errors is via query string
-         if (url.includes('?errors=true')) {
-            webviewRef.stopLoading();
-         }
-      };
+    return (
+      <WebView
+        style={{ flex: 1 }}
+        ref={webviewRef}
+        originWhitelist={["*"]}
+        source={{
+          uri: `https://form.jotform.com/${params.jotform_vacation_url_code}?studentId=${student.registrationNumber}&studentsName[first]=${student.name}&studentsName[last]=${student.lastName}&emailAddress=${student.email}&group=${group[0].groupID}-${group[0].name}`,
+        }}
+        onNavigationStateChange={handleWebViewNavigationStateChange}
+      />
+    );
+  };
 
-      return (
-         <WebView
-            style={{ flex: 1 }}
-            ref={webviewRef}
-            originWhitelist={['*']}
-            source={{ uri: `https://form.jotform.com/${params.jotform_vacation_url_code}?studentId=${student.registrationNumber}&studentsName[first]=${student.name}&studentsName[last]=${student.lastName}&emailAddress=${student.email}&group=${group[0].groupID}-${group[0].name}` }}
-            onNavigationStateChange={handleWebViewNavigationStateChange}
-         />);
-   }
-
-   return <Page>
-      <Header showLogo={true} navigation={navigation} drawer='Absence Excuse' />
-      <Stack.Navigator id="Vacations" initialRouteName="Vacations" screenOptions={{
-         headerRight: () => (
-            <TouchableOpacity onPress={() => navigation.navigate('Vacation Req.')}>
-               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text><Ionicons name="add-circle" size={24} color={theme.colors.secondary} /></Text>
-                  <Text style={{ color: theme.colors.secondary, fontWeight: 'bold' }}>New Request</Text>
-               </View>
-            </TouchableOpacity>)
-      }} >
-         <Stack.Screen name="Vacations" component={List} />
-         <Stack.Screen name="Vacation Req." component={NewForm} />
+  return (
+    <Page>
+      <Header showLogo={true} navigation={navigation} drawer="Absence Excuse" />
+      <Stack.Navigator
+        id="Vacations"
+        initialRouteName="Vacations"
+        screenOptions={{ headerShown: true }}
+      >
+        <Stack.Screen
+          name="Vacations"
+          component={List}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen name="Vacation Req." component={NewForm} />
       </Stack.Navigator>
-   </Page>
+    </Page>
+  );
 }

@@ -165,120 +165,133 @@ export function Login({ route, navigation }) {
 
   return (
     <Page>
-      <Header showLogo={false} />
       <Container>
         <RegistrationStatus />
         <Main>
-          <Logo />
-          <Container>
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : "height"}
-            >
-              <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <>
-                  <Input
-                    control={control}
-                    defaultValue={account ? account.registrationNumber : null}
-                    autoCapitalize="characters"
-                    keyboardType="default"
-                    autoCorrect={false}
-                    placeholder="Registration Number"
-                    name="registrationNumber"
-                    error={
-                      errors.registrationNumber || loginError.registrationNumber
-                    }
-                    icon="fingerprint"
-                    iconColor={theme.colors.secondary}
-                  />
-                  {errors && errors.registrationNumber ? (
-                    <Text style={{ fontSize: 12, color: "#f00" }}>
-                      {errors.registrationNumber.message}
-                    </Text>
-                  ) : null}
-                  <Input
-                    control={control}
-                    defaultValue={account ? account.email : null}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    autoCorrect={false}
-                    placeholder="E-mail"
-                    name="email"
-                    error={errors.email || loginError.email}
-                    icon="email"
-                    iconColor={theme.colors.secondary}
-                  />
-                  {errors && errors.email ? (
-                    <Text style={{ fontSize: 12, color: "#f00" }}>
-                      {errors.email.message}
-                    </Text>
-                  ) : null}
-                  <Input
-                    control={control}
-                    keyboardType="default"
-                    placeholder="Password"
-                    secureTextEntry={true}
-                    autoCorrect={false}
-                    name="pass"
-                    error={errors.pass || loginError.pass}
-                    icon="key"
-                    iconColor={theme.colors.secondary}
-                  />
-
-                  {loginError.email || loginError.registrationNumber ? (
-                    <>
-                      <Text style={{ fontSize: 12, color: "#f00" }}>
-                        * Registration Number or Email Address not found.
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 12,
-                          color: "#f00",
-                          marginBottom: 15,
-                        }}
-                      >
-                        Please check your invitation to confirm.
-                      </Text>
-                    </>
-                  ) : null}
-                </>
-              </TouchableWithoutFeedback>
-            </KeyboardAvoidingView>
-          </Container>
-          {!loading ? (
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <>
-              <TouchableOpacity
-                style={theme.buttons.secondaryButton}
-                onPress={handleSubmit(handleFindId)}
-              >
-                <BtnText>Log In</BtnText>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={theme.buttons.secondaryButtonSimple}
-                onPress={() => {
-                  navigation.push("Forgot");
+              <Logo />
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+                  width: "100%",
                 }}
               >
-                <Text style={{ color: theme.colors.secondary }}>
-                  I forgot my password
-                </Text>
-              </TouchableOpacity>
+                <Input
+                  control={control}
+                  defaultValue={account ? account.registrationNumber : null}
+                  autoCapitalize="characters"
+                  keyboardType="default"
+                  autoCorrect={false}
+                  placeholder="Registration Number"
+                  name="registrationNumber"
+                  error={
+                    errors.registrationNumber || loginError.registrationNumber
+                  }
+                  icon="fingerprint"
+                  iconColor={theme.colors.secondary}
+                />
+                {errors && errors.registrationNumber ? (
+                  <Text style={{ fontSize: 12, color: "#f00" }}>
+                    {errors.registrationNumber.message}
+                  </Text>
+                ) : null}
+                <Input
+                  control={control}
+                  defaultValue={account ? account.email : null}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  autoCorrect={false}
+                  placeholder="E-mail"
+                  name="email"
+                  error={errors.email || loginError.email}
+                  icon="email"
+                  iconColor={theme.colors.secondary}
+                />
+                {errors && errors.email ? (
+                  <Text style={{ fontSize: 12, color: "#f00" }}>
+                    {errors.email.message}
+                  </Text>
+                ) : null}
+                <Input
+                  control={control}
+                  keyboardType="default"
+                  placeholder="Password"
+                  secureTextEntry={true}
+                  autoCorrect={false}
+                  name="pass"
+                  error={errors.pass || loginError.pass}
+                  icon="key"
+                  iconColor={theme.colors.secondary}
+                />
+
+                {loginError.email || loginError.registrationNumber ? (
+                  <>
+                    <Text style={{ fontSize: 12, color: "#f00" }}>
+                      * Registration Number or Email Address not found.
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        color: "#f00",
+                        marginBottom: 15,
+                      }}
+                    >
+                      Please check your invitation to confirm.
+                    </Text>
+                  </>
+                ) : null}
+                <View
+                  style={{
+                    width: "100%",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    gap: 4,
+                  }}
+                >
+                  {!loading ? (
+                    <>
+                      <TouchableOpacity
+                        style={theme.buttons.secondaryButton}
+                        onPress={handleSubmit(handleFindId)}
+                      >
+                        <BtnText>Log In</BtnText>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={theme.buttons.secondaryButtonSimple}
+                        onPress={() => {
+                          navigation.push("Forgot");
+                        }}
+                      >
+                        <Text style={{ color: theme.colors.secondary }}>
+                          I forgot my password
+                        </Text>
+                      </TouchableOpacity>
+                    </>
+                  ) : (
+                    <View style={theme.buttons.secondaryButton}>
+                      <BtnText>Searching...</BtnText>
+                    </View>
+                  )}
+                  <TouchableOpacity
+                    style={theme.buttons.secondaryButtonSimple}
+                    onPress={() => {
+                      navigation.push("FirstAccess");
+                    }}
+                  >
+                    <Text style={{ color: theme.colors.secondary }}>
+                      This is my first access
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </>
-          ) : (
-            <View style={theme.buttons.secondaryButton}>
-              <BtnText>Searching...</BtnText>
-            </View>
-          )}
-          <TouchableOpacity
-            style={theme.buttons.secondaryButtonSimple}
-            onPress={() => {
-              navigation.push("FirstAccess");
-            }}
-          >
-            <Text style={{ color: theme.colors.secondary }}>
-              This is my first access
-            </Text>
-          </TouchableOpacity>
+          </TouchableWithoutFeedback>
         </Main>
       </Container>
     </Page>

@@ -1,178 +1,364 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Page } from './styles';
-import { WebView } from 'react-native-webview';
-import Header from '../../components/Header';
-import { useRegister } from '../../hooks/register';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { FlatList, Text, View } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Ionicons } from '@expo/vector-icons';
-import axios from 'axios';
-import firestore from '@react-native-firebase/firestore';
-import theme from '../../global/styles/theme';
+import React, { useEffect, useRef, useState } from "react";
+import { Page } from "./styles";
+import { WebView } from "react-native-webview";
+import Header from "../../components/Header";
+import { useRegister } from "../../hooks/register";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { FlatList, Text, View } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { Ionicons } from "@expo/vector-icons";
+import axios from "axios";
+import firestore from "@react-native-firebase/firestore";
+import theme from "../../global/styles/theme";
 
 export function AbsenseExcuse({ navigation }) {
-   const { student, setStudent, params } = useRegister();
-   const [editForm, setEditForm] = useState(null)
-   const webviewRef = useRef();
-   const Stack = createNativeStackNavigator();
+  const { student, setStudent, params } = useRegister();
+  const [editForm, setEditForm] = useState(null);
+  const webviewRef = useRef();
+  const Stack = createNativeStackNavigator();
 
-   const List = () => {
-      const [medicalExcuses, setMedicalExcuses] = useState([]);
-      const [loading, setLoading] = useState(true)
-      useEffect(() => {
+  const List = ({ navigation }) => {
+    const [medicalExcuses, setMedicalExcuses] = useState([]);
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+      function getRequests() {
+        const filterParam = `{"q33:matches:studentid":"${student.registrationNumber}"}`;
+        const list = [];
+        axios
+          .get(
+            `https://api.jotform.com/form/${params.jotform_medical_excuse_url_code}/submissions?apikey=${params.jotform_api_key}&addWorkflowStatus=1&filter=${filterParam}&orderby=created_at`
+          )
+          .then(({ data }) => {
+            list.push(
+              data.content.map((cont) => {
+                const obj = cont.answers;
+                const submission_id = cont.id;
+                const anwsers = Object.keys(obj).map((key) => [key, obj[key]]);
+                const id = anwsers.find(
+                  (answer) => answer[1].name === "uniqueId"
+                )[1].answer;
+                const dateFromRet = anwsers.find(
+                  (answer) => answer[1].name === "startDate"
+                )[1].answer;
+                const dateFrom =
+                  dateFromRet.month +
+                  "/" +
+                  dateFromRet.day +
+                  "/" +
+                  dateFromRet.year;
+                const dateToRet = anwsers.find(
+                  (answer) => answer[1].name === "endDate"
+                )[1].answer;
+                const dateTo =
+                  dateToRet.month + "/" + dateToRet.day + "/" + dateToRet.year;
+                const createdAt = cont.created_at;
+                const status =
+                  cont.workflowStatus === "ACTIVE"
+                    ? "Pending..."
+                    : cont.workflowStatus === "Deny"
+                    ? "Denied"
+                    : cont.workflowStatus === "More Information"
+                    ? "Add More Information"
+                    : "Approved";
 
-         function getRequests() {
-            const filterParam = `{"q33:matches:studentid":"${student.registrationNumber}"}`
-            const list = []
-            axios.get(`https://api.jotform.com/form/${params.jotform_medical_excuse_url_code}/submissions?apikey=${params.jotform_api_key}&addWorkflowStatus=1&filter=${filterParam}&orderby=created_at`)
-               .then(({ data }) => {
-                  list.push(data.content.map((cont) => {
-                     const obj = cont.answers;
-                     const submission_id = cont.id;
-                     const anwsers = Object.keys(obj).map((key) => [key, obj[key]]);
-                     const id = anwsers.find((answer) => answer[1].name === 'uniqueId')[1].answer;
-                     const dateFromRet = anwsers.find((answer) => answer[1].name === 'startDate')[1].answer;
-                     const dateFrom = dateFromRet.month + "/" + dateFromRet.day + "/" + dateFromRet.year;
-                     const dateToRet = anwsers.find((answer) => answer[1].name === 'endDate')[1].answer;
-                     const dateTo = dateToRet.month + "/" + dateToRet.day + "/" + dateToRet.year;
-                     const createdAt = cont.created_at;
-                     const status = cont.workflowStatus === 'ACTIVE' ? 'Pending...' : cont.workflowStatus === 'Deny' ? 'Denied' : cont.workflowStatus === 'More Information' ? 'Add More Information' : 'Approved';
+                return {
+                  id,
+                  createdAt,
+                  dateFrom,
+                  dateTo,
+                  status,
+                  submission_id,
+                };
+              })
+            );
+          })
+          .finally(() => {
+            setMedicalExcuses(
+              ...list.sort((a, b) => a.createdAt < b.createdAt)
+            );
+            const requestIds = list[0].map((item) => item.submission_id);
+            firestore()
+              .collection("Students")
+              .doc(student.registrationNumber)
+              .update({
+                medicalExcuses: requestIds,
+              });
+            setLoading(false);
+          });
+      }
+      if (loading) {
+        getRequests();
+      }
+    }, [loading]);
 
-                     return {
-                        id,
-                        createdAt,
-                        dateFrom,
-                        dateTo,
-                        status,
-                        submission_id
-                     }
+    function handleEditForm(item) {
+      setEditForm(item);
+      navigation.navigate("New Request");
+    }
 
+    return (
+      <>
+        <View
+          style={{
+            width: "100%",
+            paddingHorizontal: 16,
+            backgroundColor: "#FFF",
+            flexDirection: "row",
+            height: 50,
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text
+            style={{
+              color: theme.colors.gray,
+              fontWeight: "bold",
+              fontSize: 20,
+            }}
+          >
+            Absence Excuse
+          </Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("New Request")}
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              height: 50,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text>
+                <Ionicons
+                  name="add-circle"
+                  size={24}
+                  color={theme.colors.secondary}
+                />
+              </Text>
+              <Text
+                style={{ color: theme.colors.secondary, fontWeight: "bold" }}
+              >
+                New Request
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity
+          onPress={() => setLoading(true)}
+          style={{
+            width: "100%",
+            backgroundColor: theme.colors.grayOpacity,
+            flexDirection: "row",
+            height: 50,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Text style={{ color: theme.colors.gray, fontWeight: "bold" }}>
+            <Ionicons name="refresh" size={16} color={theme.colors.gray} />{" "}
+            {loading ? "Loading..." : "Refresh information"}
+          </Text>
+        </TouchableOpacity>
+        <FlatList
+          data={medicalExcuses.filter((me) => me.id)}
+          renderItem={({ item, index }) => {
+            return (
+              <TouchableOpacity
+                onPress={() =>
+                  item.status === "Add More Information"
+                    ? handleEditForm(item)
+                    : null
+                }
+                style={{
+                  width: "100%",
+                  backgroundColor: index % 2 === 0 ? "#FFF" : "#fcfcfc",
+                  paddingVertical: 8,
+                  paddingHorizontal: 16,
+                  borderBottomWidth: 1,
+                  borderColor: "#efefef",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <View>
+                  <Text
+                    style={{
+                      fontWeight: "bold",
+                      color: theme.colors.secondary,
+                      fontSize: 16,
+                    }}
+                  >
+                    {item.id}
+                  </Text>
 
-                  }))
-               })
-               .finally(() => {
-                  setMedicalExcuses(...list.sort((a, b) => a.createdAt < b.createdAt))
-                  const requestIds = list[0].map(item => item.submission_id);
-                  firestore().collection('Students').doc(student.registrationNumber).update({
-                     medicalExcuses: requestIds
-                  })
-                  setLoading(false)
-               })
-         }
-         if (loading) {
-            getRequests()
-         }
-      }, [loading])
+                  {item.dateTo ? (
+                    <>
+                      <Text>
+                        <Text
+                          style={{
+                            fontWeight: "bold",
+                            fontSize: 13,
+                            width: "50%",
+                          }}
+                        >
+                          Start date:
+                        </Text>{" "}
+                        {item.dateFrom}
+                      </Text>
+                      <Text>
+                        <Text
+                          style={{
+                            fontWeight: "bold",
+                            fontSize: 13,
+                            width: "50%",
+                          }}
+                        >
+                          End date:
+                        </Text>{" "}
+                        {item.dateTo}
+                      </Text>
+                    </>
+                  ) : (
+                    <Text>
+                      <Text
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: 13,
+                          width: "50%",
+                        }}
+                      >
+                        Date:
+                      </Text>{" "}
+                      {item.dateFrom}
+                    </Text>
+                  )}
+                </View>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    color:
+                      item.status === "Pending..."
+                        ? theme.colors.grayOpacity2
+                        : item.status === "Add More Information"
+                        ? theme.colors.Transfer
+                        : item.status === "Denied"
+                        ? theme.colors.primaryOpacity
+                        : theme.colors.secondary,
+                  }}
+                >
+                  {item.status}
+                </Text>
+              </TouchableOpacity>
+            );
+          }}
+        />
+      </>
+    );
+  };
 
-      function handleEditForm(item) {
-         setEditForm(item)
-         navigation.navigate("New Request")
+  const NewForm = ({ navigation }) => {
+    // navigation.setOptions({
+    //    headerRight: null
+    //  })
+    const handleWebViewNavigationStateChange = async (newNavState) => {
+      // newNavState looks something like this:
+      // {
+      //   url?: string;
+      //   title?: string;
+      //   loading?: boolean;
+      //   canGoBack?: boolean;
+      //   canGoForward?: boolean;
+      // }
+      const { url } = newNavState;
+
+      if (!url) return;
+
+      // redirect somewhere else
+      if (!url.includes("jotform.com")) {
+        return;
       }
 
-      return (
-         <>
-            <TouchableOpacity onPress={() => setLoading(true)} style={{ width: '100%', backgroundColor: theme.colors.grayOpacity, flexDirection: 'row', height: 50, alignItems: 'center', justifyContent: 'center' }}>
-               <Text style={{ color: theme.colors.gray, fontWeight: 'bold' }}><Ionicons name="refresh" size={16} color={theme.colors.gray} /> {loading ? 'Loading...' : 'Refresh information'}</Text>
-            </TouchableOpacity>
-            <FlatList data={medicalExcuses.filter((me) => me.id)} renderItem={({ item, index }) => {
-               return (
-                  <TouchableOpacity onPress={() => item.status === 'Add More Information' ? handleEditForm(item) : null} style={{ width: '100%', backgroundColor: index % 2 === 0 ? '#FFF' : '#fcfcfc', paddingVertical: 8, paddingHorizontal: 16, borderBottomWidth: 1, borderColor: '#efefef', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-
-                     <View>
-                        <Text style={{ fontWeight: 'bold', color: theme.colors.secondary, fontSize: 16 }}>{item.id}</Text>
-
-                        {item.dateTo ? <>
-                           <Text><Text style={{ fontWeight: 'bold', fontSize: 13, width: '50%' }}>Start date:</Text> {item.dateFrom}</Text>
-                           <Text><Text style={{ fontWeight: 'bold', fontSize: 13, width: '50%' }}>End date:</Text> {item.dateTo}</Text>
-                        </> :
-                           <Text><Text style={{ fontWeight: 'bold', fontSize: 13, width: '50%' }}>Date:</Text> {item.dateFrom}</Text>
-                        }
-                     </View>
-                     <Text style={{ fontWeight: 'bold', color: item.status === 'Pending...' ? theme.colors.grayOpacity2 : item.status === 'Add More Information' ? theme.colors.Transfer : item.status === 'Denied' ? theme.colors.primaryOpacity : theme.colors.secondary }}>{item.status}</Text>
-                  </TouchableOpacity>
-               )
-            }} />
-         </>
-      )
-   }
-
-   const NewForm = ({ navigation }) => {
-      // navigation.setOptions({
-      //    headerRight: null
-      //  })
-      const handleWebViewNavigationStateChange = async (newNavState) => {
-         // newNavState looks something like this:
-         // {
-         //   url?: string;
-         //   title?: string;
-         //   loading?: boolean;
-         //   canGoBack?: boolean;
-         //   canGoForward?: boolean;
-         // }
-         const { url } = newNavState;
-
-         if (!url) return;
-
-         // redirect somewhere else
-         if (!url.includes('jotform.com')) {
-            return
-         }
-
-         if (url.includes('https://submit.jotform.com/submit/')) {
-            setTimeout(() => {
-               navigation.navigate("Absence Excuse")
-            }, 3000)
-         }
-
-         // handle certain doctypes
-         if (url.includes('.pdf')) {
-            webviewRef.stopLoading();
-            // open a modal with the PDF viewer
-         }
-
-         // one way to handle a successful form submit is via query strings
-         if (url.includes('?message=success')) {
-            webviewRef.stopLoading();
-            // maybe close this view?
-         }
-
-         // one way to handle errors is via query string
-         if (url.includes('?errors=true')) {
-            webviewRef.stopLoading();
-         }
-      };
-
-      let formUri = '';
-      if (editForm) {
-         formUri = `https://jotform.com/edit/${editForm.submission_id}`;
-      } else {
-         formUri = `https://form.jotform.com/${params.jotform_medical_excuse_url_code}?studentid=${student.registrationNumber}&studentfull=${student.name} ${student.lastName}&studentemail=${student.email}`;
+      if (url.includes("https://submit.jotform.com/submit/")) {
+        setTimeout(() => {
+          navigation.navigate("Absence Excuse");
+        }, 3000);
       }
 
-      return (
-         <WebView
-            style={{ flex: 1 }}
-            ref={webviewRef}
-            originWhitelist={['*']}
-            source={{ uri: formUri }}
-            onNavigationStateChange={handleWebViewNavigationStateChange}
-         />);
-   }
+      // handle certain doctypes
+      if (url.includes(".pdf")) {
+        webviewRef.stopLoading();
+        // open a modal with the PDF viewer
+      }
 
-   return <Page>
-      <Header showLogo={true} navigation={navigation} drawer='Absence Excuse' />
-      <Stack.Navigator id="AbsenseExcuse" initialRouteName="Absence Excuse" screenOptions={{
-         headerRight: () => (
-            <TouchableOpacity onPress={() => navigation.navigate('New Request')}>
-               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text><Ionicons name="add-circle" size={24} color={theme.colors.secondary} /></Text>
-                  <Text style={{ color: theme.colors.secondary, fontWeight: 'bold' }}>New Request</Text>
-               </View>
-            </TouchableOpacity>)
-      }} >
-         <Stack.Screen name="Absence Excuse" component={List} />
-         <Stack.Screen name="New Request" component={NewForm} />
+      // one way to handle a successful form submit is via query strings
+      if (url.includes("?message=success")) {
+        webviewRef.stopLoading();
+        // maybe close this view?
+      }
+
+      // one way to handle errors is via query string
+      if (url.includes("?errors=true")) {
+        webviewRef.stopLoading();
+      }
+    };
+
+    let formUri = "";
+    if (editForm) {
+      formUri = `https://jotform.com/edit/${editForm.submission_id}`;
+    } else {
+      formUri = `https://form.jotform.com/${params.jotform_medical_excuse_url_code}?studentid=${student.registrationNumber}&studentfull=${student.name} ${student.lastName}&studentemail=${student.email}`;
+    }
+
+    return (
+      <WebView
+        style={{ flex: 1 }}
+        ref={webviewRef}
+        originWhitelist={["*"]}
+        source={{ uri: formUri }}
+        onNavigationStateChange={handleWebViewNavigationStateChange}
+      />
+    );
+  };
+
+  return (
+    <Page>
+      <Header showLogo={true} navigation={navigation} drawer="Absence Excuse" />
+      <Stack.Navigator
+        id="AbsenseExcuse"
+        initialRouteName="Absence Excuse"
+        screenOptions={{ headerShown: true }}
+        //   screenOptions={{
+        //     headerRight: () => (
+        //       <TouchableOpacity
+        //         onPress={() => navigation.navigate("New Request")}
+        //       >
+        //         <View style={{ flexDirection: "row", alignItems: "center" }}>
+        //           <Text>
+        //             <Ionicons
+        //               name="add-circle"
+        //               size={24}
+        //               color={theme.colors.secondary}
+        //             />
+        //           </Text>
+        //           <Text
+        //             style={{ color: theme.colors.secondary, fontWeight: "bold" }}
+        //           >
+        //             New Request
+        //           </Text>
+        //         </View>
+        //       </TouchableOpacity>
+        //     ),
+        //   }}
+      >
+        <Stack.Screen
+          name="Absence Excuse"
+          component={List}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen name="New Request" component={NewForm} />
       </Stack.Navigator>
-   </Page>
+    </Page>
+  );
 }

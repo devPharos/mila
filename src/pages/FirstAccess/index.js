@@ -154,102 +154,121 @@ export function FirstAccess({ route, navigation }) {
 
   return (
     <Page>
-      <Header showLogo={false} />
       <Container>
         <RegistrationStatus step="1" />
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <Main>
-            <Logo />
-            <Container>
-              <Input
-                control={control}
-                defaultValue={account ? account.registrationNumber : null}
-                autoCapitalize="characters"
-                keyboardType="default"
-                autoCorrect={false}
-                placeholder="Registration Number"
-                name="registrationNumber"
-                error={
-                  errors.registrationNumber ||
-                  (account.searched && !account.registration)
-                }
-                icon="fingerprint"
-                iconColor={theme.colors.secondary}
-              />
-              {errors && errors.registrationNumber ? (
-                <Text style={{ fontSize: 12, color: "#f00" }}>
-                  {errors.registrationNumber.message}
-                </Text>
-              ) : null}
+        <Main>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <>
+              <Logo />
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+                  width: "100%",
+                }}
+              >
+                <Input
+                  control={control}
+                  defaultValue={account ? account.registrationNumber : null}
+                  autoCapitalize="characters"
+                  keyboardType="default"
+                  autoCorrect={false}
+                  placeholder="Registration Number"
+                  name="registrationNumber"
+                  error={
+                    errors.registrationNumber ||
+                    (account.searched && !account.registration)
+                  }
+                  icon="fingerprint"
+                  iconColor={theme.colors.secondary}
+                />
+                {errors && errors.registrationNumber ? (
+                  <Text style={{ fontSize: 12, color: "#f00" }}>
+                    {errors.registrationNumber.message}
+                  </Text>
+                ) : null}
 
-              <Input
-                control={control}
-                defaultValue={account ? account.email : null}
-                autoCapitalize="none"
-                keyboardType="email-address"
-                autoCorrect={false}
-                placeholder="E-mail"
-                name="email"
-                error={
-                  errors.email || (account.searched && !account.registration)
-                }
-                icon="email"
-                iconColor={theme.colors.secondary}
-              />
-              {errors && errors.email ? (
-                <Text style={{ fontSize: 12, color: "#f00" }}>
-                  {errors.email.message}
-                </Text>
-              ) : null}
+                <Input
+                  control={control}
+                  defaultValue={account ? account.email : null}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  autoCorrect={false}
+                  placeholder="E-mail"
+                  name="email"
+                  error={
+                    errors.email || (account.searched && !account.registration)
+                  }
+                  icon="email"
+                  iconColor={theme.colors.secondary}
+                />
+                {errors && errors.email ? (
+                  <Text style={{ fontSize: 12, color: "#f00" }}>
+                    {errors.email.message}
+                  </Text>
+                ) : null}
 
-              {account.searched && !account.registration ? (
+                {account.searched && !account.registration ? (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Text
+                      style={{ fontSize: 12, color: "#f00", paddingRight: 8 }}
+                    >
+                      *
+                    </Text>
+                    <View>
+                      <Text style={{ fontSize: 12, color: "#222" }}>
+                        Registration Number or Email not found.
+                      </Text>
+                      <Text style={{ fontSize: 12, color: "#222" }}>
+                        Please check your invitation to confirm.
+                      </Text>
+                    </View>
+                  </View>
+                ) : null}
                 <View
                   style={{
-                    flexDirection: "row",
+                    width: "100%",
+                    flexDirection: "column",
                     alignItems: "center",
-                    justifyContent: "space-between",
+                    justifyContent: "flex-start",
+                    gap: 4,
                   }}
                 >
-                  <Text
-                    style={{ fontSize: 12, color: "#f00", paddingRight: 8 }}
+                  {!loading ? (
+                    <TouchableOpacity
+                      style={theme.buttons.secondaryButton}
+                      onPress={handleSubmit(handleFindId)}
+                    >
+                      <BtnText>Continue</BtnText>
+                    </TouchableOpacity>
+                  ) : (
+                    <View style={theme.buttons.secondaryButton}>
+                      <BtnText>Searching...</BtnText>
+                    </View>
+                  )}
+                  <TouchableOpacity
+                    style={theme.buttons.secondaryButtonSimple}
+                    onPress={() => {
+                      navigation.push("Login");
+                    }}
                   >
-                    *
-                  </Text>
-                  <View>
-                    <Text style={{ fontSize: 12, color: "#222" }}>
-                      Registration Number or Email not found.
+                    <Text style={{ color: theme.colors.secondary }}>
+                      Back to Log In
                     </Text>
-                    <Text style={{ fontSize: 12, color: "#222" }}>
-                      Please check your invitation to confirm.
-                    </Text>
-                  </View>
+                  </TouchableOpacity>
                 </View>
-              ) : null}
-            </Container>
-            {!loading ? (
-              <TouchableOpacity
-                style={theme.buttons.secondaryButton}
-                onPress={handleSubmit(handleFindId)}
-              >
-                <BtnText>Continue</BtnText>
-              </TouchableOpacity>
-            ) : (
-              <View style={theme.buttons.secondaryButton}>
-                <BtnText>Searching...</BtnText>
               </View>
-            )}
-            <TouchableOpacity
-              style={theme.buttons.secondaryButtonSimple}
-              onPress={() => {
-                navigation.push("Login");
-              }}
-            >
-              <Text style={{ color: theme.colors.secondary }}>
-                Back to Log In
-              </Text>
-            </TouchableOpacity>
-          </Main>
-        </TouchableWithoutFeedback>
+            </>
+          </TouchableWithoutFeedback>
+        </Main>
       </Container>
     </Page>
   );

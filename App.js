@@ -23,6 +23,9 @@ import { LastStep } from "./src/pages/LastStep";
 import TabNavigation from "./src/pages/TabNavigation";
 import { AccessChanged } from "./src/pages/AccessChanged";
 import ProgressTest from "./src/pages/ProgressTest";
+import { enableScreens, screen } from "react-native-screens";
+
+enableScreens();
 
 const Stack = createNativeStackNavigator();
 

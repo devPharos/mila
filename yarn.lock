@@ -6205,6 +6205,11 @@ react-native-pdf@^6.7.5:
     crypto-js "4.2.0"
     deprecated-react-native-prop-types "^2.3.0"
 
+react-native-prevent-screenshot-ios-android@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/react-native-prevent-screenshot-ios-android/-/react-native-prevent-screenshot-ios-android-1.1.0.tgz#b72b273158301aa21e8a268ba04ce3d8394cd79c"
+  integrity sha512-pTUKsuj14WTwbNnYw9t19i1LHwqLTY5jVHNYX+JmHDorcEvzvTYwppm7T7oalNc18/3+sJP9efUcxUmW5UyEWA==
+
 react-native-qrcode-svg@^6.3.1:
   version "6.3.12"
   resolved "https://registry.yarnpkg.com/react-native-qrcode-svg/-/react-native-qrcode-svg-6.3.12.tgz#ee2c34c836c0c58f0a7f2d79304bcf12b9e151a9"
@@ -6259,11 +6264,6 @@ react-native-screens@~4.4.0:
   dependencies:
     react-freeze "^1.0.0"
     warn-once "^0.1.0"
-
-react-native-screenshot-prevent@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/react-native-screenshot-prevent/-/react-native-screenshot-prevent-1.2.1.tgz#f784a3303139690b9e8c1ef00f69839810941016"
-  integrity sha512-zY6U3xNlFrquCJJVNoyR6DcAv2c6tOHQIcleBUQo4OrbSKz5a94Y3MkuzVwpE+IMlxCASymenDwfMtnWopSiVA==
 
 react-native-svg@15.8.0:
   version "15.8.0"

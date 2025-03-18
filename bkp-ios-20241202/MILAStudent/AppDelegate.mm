@@ -63,4 +63,16 @@
   return [super application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
 }
 
+- (void)applicationWillResignActive:(UIApplication *)application {
+    UIView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleLight]];
+    blurEffectView.frame = self.window.bounds;
+    blurEffectView.tag = 999;
+    [self.window addSubview:blurEffectView];
+}
+
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    UIView *blurEffectView = [self.window viewWithTag:999];
+    [blurEffectView removeFromSuperview];
+}
+
 @end

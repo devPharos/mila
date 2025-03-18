@@ -16,6 +16,13 @@ import { Container, Main, Page } from "../Dashboard/styles";
 import firestore from "@react-native-firebase/firestore";
 import { format } from "date-fns";
 import theme from "../../global/styles/theme";
+import {
+  enableSecureView,
+  disableSecureView,
+  forbidAndroidShare,
+  allowAndroidShare,
+} from "react-native-prevent-screenshot-ios-android";
+import { Platform } from "react-native";
 
 export default function ProgressTest({ navigation }) {
   const {
@@ -31,6 +38,7 @@ export default function ProgressTest({ navigation }) {
   const [testId, setTestId] = useState(null);
   const [reasonNotShown, setReasonNotShown] = useState(null);
   const webviewRef = useRef();
+
   async function load() {
     setTestId(null);
     await updateClassInformation(student);
@@ -122,6 +130,15 @@ export default function ProgressTest({ navigation }) {
       ]
     );
   }
+
+  useEffect(() => {
+    if (Platform.OS === "android") {
+      forbidAndroidShare();
+    }
+    if (Platform.OS == "ios") {
+      enableSecureView();
+    }
+  }, []);
 
   useEffect(() => {
     if (loading) {
