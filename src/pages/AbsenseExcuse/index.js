@@ -12,7 +12,7 @@ import firestore from "@react-native-firebase/firestore";
 import theme from "../../global/styles/theme";
 
 export function AbsenseExcuse({ navigation }) {
-  const { student, setStudent, params } = useRegister();
+  const { student, params } = useRegister();
   const [editForm, setEditForm] = useState(null);
   const webviewRef = useRef();
   const Stack = createNativeStackNavigator();
@@ -96,6 +96,11 @@ export function AbsenseExcuse({ navigation }) {
       navigation.navigate("New Request");
     }
 
+    function handleNew() {
+      setEditForm(null);
+      navigation.navigate("New Request");
+    }
+
     return (
       <>
         <View
@@ -119,7 +124,7 @@ export function AbsenseExcuse({ navigation }) {
             Absence Excuse
           </Text>
           <TouchableOpacity
-            onPress={() => navigation.navigate("New Request")}
+            onPress={() => handleNew()}
             style={{
               flex: 1,
               flexDirection: "row",

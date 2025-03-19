@@ -26,6 +26,7 @@ function RegisterProvider({ children }) {
     emailVerified: false,
     medicalExcuses: [],
     vacations: [],
+    teachersEmail: null,
   };
 
   const defaultParams = {
@@ -89,13 +90,13 @@ function RegisterProvider({ children }) {
       await firestore()
         .collection("Params")
         .get()
-        .then((querySnapshot) => {
+        .then(async (querySnapshot) => {
           querySnapshot.forEach(async (documentSnapshot) => {
             const dataParams = documentSnapshot.data();
             setParams({ ...dataParams });
           });
 
-          firestore()
+          await firestore()
             .collection("Tests")
             .get()
             .then((querySnapshot) => {
@@ -268,8 +269,15 @@ function RegisterProvider({ children }) {
     auth().signOut();
   }
 
-  async function updateClassInformation(student) {
+  async function updateClassInformation(
+    student,
+    setRequireReAuth = () => null
+  ) {
     try {
+      const today = new Date();
+      const month = today.getMonth();
+      const year = today.getFullYear();
+      const thisPeriod = year + "-" + (month + 1).toString().padStart(2, "0");
       const { data } = await api.get(`/students/${student.registration}`);
       let lastName = "";
       const arrayLastName = data.data.lastName.split(" ");
@@ -283,43 +291,94 @@ function RegisterProvider({ children }) {
           lastName += arrayLastName[i];
         }
       }
+
+      const { data: classes } = await api.get(
+        `/students/dashboard/${student.registration}/${thisPeriod}`
+      );
+      classes.data.periods.map((p) => {
+        if (p.period == thisPeriod) {
+          setPeriod(p);
+        }
+      });
+
       await firestore()
         .collection("Students")
         .doc(student.registrationNumber)
-        .update({
-          name: capitalizeFirstLetter(data.data.name),
-          lastName,
-          level: capitalizeFirstLetter(data.data.currentGroup.level),
-          schedule: capitalizeFirstLetter(data.data.currentGroup.schedule),
-          birthDate: data.data.birthDate,
-          country: capitalizeFirstLetter(data.data.country),
-          nsevis: data.data.nsevis,
-          email: data.data.email.toLowerCase(),
-        })
-        .then(() => {
-          setStudent({
-            ...student,
-            name: capitalizeFirstLetter(data.data.name),
-            lastName,
-            level: capitalizeFirstLetter(data.data.currentGroup.level),
-            schedule: capitalizeFirstLetter(data.data.currentGroup.schedule),
-            birthDate: data.data.birthDate,
-            country: capitalizeFirstLetter(data.data.country),
-            nsevis: data.data.nsevis,
-            email: data.data.email.toLowerCase(),
-          });
-        });
-
-      await firestore()
-        .collection("Tests")
         .get()
-        .then((querySnapshot) => {
-          const testsList = [];
-          querySnapshot.forEach(async (documentSnapshot) => {
-            const dataTests = documentSnapshot.data();
-            testsList.push({ level: documentSnapshot.id, ...dataTests });
-          });
-          setTests(testsList);
+        .then(async (documentSnapshot) => {
+          if (documentSnapshot.exists) {
+            const userFB = documentSnapshot.data();
+            console.log({ userFB });
+            await firestore()
+              .collection("Students")
+              .doc(student.registrationNumber)
+              .update({
+                name: capitalizeFirstLetter(data.data.name),
+                lastName,
+                level: capitalizeFirstLetter(data.data.currentGroup.level),
+                schedule: capitalizeFirstLetter(
+                  data.data.currentGroup.schedule
+                ),
+                birthDate: data.data.birthDate,
+                country: capitalizeFirstLetter(data.data.country),
+                nsevis: data.data.nsevis,
+                email: data.data.email.toLowerCase(),
+              })
+              .then(async () => {
+                if (userFB.email !== data.data.email.toLowerCase()) {
+                  console.log(
+                    "E-mail diferente, atualizando no authentication..."
+                  );
+                  auth()
+                    .currentUser.updateEmail(data.data.email.toLowerCase())
+                    .then(() => {
+                      console.log("E-mail atualizado!");
+                    })
+                    .catch(async (err) => {
+                      console.log(err);
+                      setRequireReAuth(true);
+                      await firestore()
+                        .collection("Students")
+                        .doc(student.registrationNumber)
+                        .update({
+                          email: userFB.email.toLowerCase(),
+                        });
+                      return;
+                    });
+                }
+                await firestore()
+                  .collection("Tests")
+                  .get()
+                  .then((querySnapshot) => {
+                    const testsList = [];
+                    querySnapshot.forEach(async (documentSnapshot) => {
+                      const dataTests = documentSnapshot.data();
+                      testsList.push({
+                        level: documentSnapshot.id,
+                        ...dataTests,
+                      });
+                    });
+                    setTests(testsList);
+                    setStudent({
+                      ...student,
+                      name: capitalizeFirstLetter(data.data.name),
+                      lastName,
+                      level: capitalizeFirstLetter(
+                        data.data.currentGroup.level
+                      ),
+                      schedule: capitalizeFirstLetter(
+                        data.data.currentGroup.schedule
+                      ),
+                      birthDate: data.data.birthDate,
+                      country: capitalizeFirstLetter(data.data.country),
+                      nsevis: data.data.nsevis,
+                      email: data.data.email.toLowerCase(),
+                      currentGroup: data.data.currentGroup,
+                      teachersEmail: data.data.currentGroup.teacher_email,
+                    });
+                  });
+              });
+          }
         });
     } catch (err) {
       console.log(err);
@@ -446,8 +505,6 @@ async function logIn(form, setLoginError, loginError, setLoading, navigation) {
           .signInWithEmailAndPassword(form.email, form.pass)
           .then(() => {})
           .catch(async (error) => {
-            console.log(error);
-            setLoading(false);
             if (error.code === "auth/wrong-password") {
               setLoginError({ ...loginError, pass: true });
               Alert.alert("Attention!", "Wrong password.");
@@ -469,14 +526,6 @@ async function logIn(form, setLoginError, loginError, setLoading, navigation) {
                       firebase.email.toLowerCase().trim() !==
                       form.email.toLowerCase().trim()
                     ) {
-                      //   auth()
-                      //     .signInWithEmailAndPassword(
-                      //       firebase.email.toLowerCase().trim(),
-                      //       form.pass
-                      //     )
-                      //     .then((user) => {
-                      //   const authenticated = auth().currentUser;
-                      //   authenticated.delete().then(() => {
                       firestore()
                         .collection("Students")
                         .doc(form.registrationNumber)
@@ -485,25 +534,31 @@ async function logIn(form, setLoginError, loginError, setLoading, navigation) {
                         })
                         .then(() => {
                           auth()
-                            .createUserWithEmailAndPassword(
-                              form.email.toLowerCase(),
+                            .signInWithEmailAndPassword(
+                              firebase.email.toLowerCase().trim(),
                               form.pass
                             )
                             .then(() => {
-                              setTimeout(() => {
-                                logInToFirebase(form);
-                              }, 1000);
+                              auth()
+                                .currentUser.updateEmail(
+                                  form.email.toLowerCase()
+                                )
+                                .then(() => {
+                                  auth()
+                                    .signOut()
+                                    .then(() => {
+                                      auth()
+                                        .signInWithEmailAndPassword(
+                                          form.email.toLowerCase(),
+                                          form.pass
+                                        )
+                                        .then(() => {
+                                          setLoading(false);
+                                        });
+                                    });
+                                });
                             });
                         });
-                      // });
-                      // auth().deleteUser(firebase.email.toLowerCase().trim())
-                      // });
-
-                      //   navigation.navigate("Login", {
-                      //     existRegistrationNumber:
-                      //       form.registrationNumber.toUpperCase(),
-                      //     existEmail: email.toLowerCase(),
-                      //   });
                       return;
                     }
                   }
@@ -513,6 +568,7 @@ async function logIn(form, setLoginError, loginError, setLoading, navigation) {
                   );
                 });
             }
+            setLoading(false);
           });
       }
     });

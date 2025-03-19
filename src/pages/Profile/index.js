@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { Page, Main, Profilepic } from "./styles";
 import {
   TouchableOpacity,
@@ -7,6 +7,7 @@ import {
   View,
   Image,
   Alert,
+  TextInput,
 } from "react-native";
 import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import auth from "@react-native-firebase/auth";
@@ -29,6 +30,8 @@ export function Profile({ navigation }) {
   const { profilePicChange } = useContext(RegisterContext);
   const { student, updateClassInformation } = useRegister();
   const [status, requestPermission] = ImagePicker.useCameraPermissions();
+  const [requireReAuth, setRequireReAuth] = useState(false);
+  const passRef = useRef();
 
   const launchCamera = async () => {
     if (status && !status.granted) {
@@ -68,7 +71,7 @@ export function Profile({ navigation }) {
 
   async function handleUpdateInfo() {
     setLoading(true);
-    await updateClassInformation(student);
+    await updateClassInformation(student, setRequireReAuth);
     setLoading(false);
     Alert.alert("Attention!", `Your class information has been updated.`);
   }
@@ -93,9 +96,123 @@ export function Profile({ navigation }) {
     );
   };
 
+  function handleReAuth() {
+    const password = passRef.current.value;
+    auth()
+      .signInWithEmailAndPassword(student.email, password)
+      .then(async () => {
+        setRequireReAuth(false);
+        await updateClassInformation(student, setRequireReAuth);
+      })
+      .catch((err) => {
+        Alert.alert("Attention!", "Wrong password.");
+      });
+  }
+
   return (
     <Page>
       <Header showLogo={true} navigation={navigation} />
+      {requireReAuth && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "100%",
+            backgroundColor: "rgba(255,255,255,.9)",
+            zIndex: 10,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+          }}
+        >
+          <View
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "#FFF",
+              shadowColor: "#000",
+              shadowOffset: {
+                width: 0,
+                height: 2,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+              elevation: 5,
+              padding: 16,
+              borderRadius: 16,
+              margin: 16,
+            }}
+          >
+            <Text
+              style={{ textAlign: "center", padding: 16, textAlign: "left" }}
+            >
+              Please enter your password to update your information.
+            </Text>
+            <TextInput
+              ref={passRef}
+              onChangeText={(e) => (passRef.current.value = e)}
+              type="password"
+              style={{
+                height: 40,
+                marginVertical: 16,
+                borderWidth: 1,
+                width: "90%",
+                paddingHorizontal: 8,
+                borderColor: "#ccc",
+                borderRadius: 4,
+              }}
+              placeholder="Password"
+            />
+            <View
+              style={{
+                width: "90%",
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <TouchableOpacity
+                style={{
+                  backgroundColor: theme.colors.secondary,
+                  padding: 8,
+                  borderRadius: 4,
+                  marginVertical: 16,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onPress={() => {
+                  handleReAuth();
+                }}
+              >
+                <Text style={{ color: "#FFF", fontWeight: "bold" }}>
+                  Update my information
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: theme.colors.gray,
+                  padding: 8,
+                  borderRadius: 4,
+                  marginVertical: 16,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onPress={() => {
+                  setRequireReAuth(false);
+                }}
+              >
+                <Text style={{ color: "#FFF", fontWeight: "bold" }}>
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
       <ScrollView>
         <Main>
           <TouchableOpacity

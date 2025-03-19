@@ -23,6 +23,7 @@ import {
   allowAndroidShare,
 } from "react-native-prevent-screenshot-ios-android";
 import { Platform } from "react-native";
+import api from "../../service/api";
 
 export default function ProgressTest({ navigation }) {
   const {
@@ -42,15 +43,30 @@ export default function ProgressTest({ navigation }) {
   async function load() {
     setTestId(null);
     await updateClassInformation(student);
+    const testsList = [];
+    await firestore()
+      .collection("Tests")
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach(async (documentSnapshot) => {
+          const dataTests = documentSnapshot.data();
+          testsList.push({ level: documentSnapshot.id, ...dataTests });
+        });
+      });
     const updatedStudent = await firestore()
       .collection("Students")
       .doc(student.registrationNumber)
       .get()
       .then(async (documentSnapshot) => {
         if (documentSnapshot.exists) {
+          const { data } = await api.get(`/students/${student.registration}`);
           const updatedStudent = documentSnapshot.data();
           if (updatedStudent.testsDone) {
-            setStudent({ ...student, testsDone: updatedStudent.testsDone });
+            setStudent({
+              ...student,
+              testsDone: updatedStudent.testsDone,
+              teachersEmail: data.data.currentGroup.teacher_email,
+            });
             return updatedStudent;
           }
         }
@@ -92,11 +108,11 @@ export default function ProgressTest({ navigation }) {
       return;
     }
 
-    if (today && tests.length > 0) {
+    if (today && testsList.length > 0) {
       const progressTest = today.program.find((p) =>
         p.description.includes("PROGRESS TEST")
       );
-      const levelTest = tests.find(
+      const levelTest = testsList.find(
         (t) => t.level.toUpperCase() === updatedStudent.level.toUpperCase()
       );
 
@@ -231,7 +247,9 @@ export default function ProgressTest({ navigation }) {
             source={{
               uri: `https://form.jotform.com/${testId}?StudentName=${
                 student.name
-              }&MilaId=${student.registrationNumber.trim()}&TeachersName=TESTER USER&GroupId=${
+              }&MilaId=${student.registrationNumber.trim()}&TeachersName=${
+                groups[0].teacher
+              }&TeachersEmail=${student.teachersEmail}&GroupId=${
                 groups[0].groupID
               }${"_"}${groups[0].name}`,
             }}

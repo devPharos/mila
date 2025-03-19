@@ -294,7 +294,7 @@ const ClassReport = ({ navigation }) => {
               Made with ❤️ by MILA
             </Text> */}
             <Text style={{ fontSize: 12, color: "#868686", marginTop: 16 }}>
-              Version: 1.42
+              Version: 1.44
             </Text>
           </>
         )}

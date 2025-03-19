@@ -146,11 +146,13 @@ export function Login({ route, navigation }) {
       }
     }
 
-    api
+    await api
       .get(`/students/${form.registrationNumber}/${form.email}/`)
-      .then((res) => {
-        setLoading(false);
-        logIn(form, setLoginError, loginError, setLoading, navigation);
+      .then(async (res) => {
+        await logIn(form, setLoginError, loginError, setLoading, navigation);
+        setTimeout(() => {
+          setLoading(false);
+        }, 2000);
       })
       .catch((err) => {
         setLoading(false);
